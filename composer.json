@@ -1,0 +1,33 @@
+{
+  "name": "hamlet-framework/db",
+  "type": "framework",
+  "description": "Hamlet Framework / DB",
+  "keywords": ["framework"],
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "Vasily Kartashov",
+      "email": "info@kartashov.com"
+    }
+  ],
+  "require": {
+    "php": "^7.2",
+    "psr/log": "@stable"
+  },
+  "require-dev": {
+    "vimeo/psalm": "dev-master",
+    "phpunit/phpunit": "^7",
+    "squizlabs/php_codesniffer": "@stable",
+    "monolog/monolog": "@stable"
+  },
+  "autoload": {
+    "psr-4": {
+      "Hamlet\\Database\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Hamlet\\Database\\": "tests"
+    }
+  }
+}
