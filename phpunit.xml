@@ -1,6 +1,6 @@
 <phpunit bootstrap="vendor/autoload.php">
     <testsuites>
-        <testsuite name="hamlet/db">
+        <testsuite name="hamlet-framework/db">
             <directory>tests</directory>
         </testsuite>
     </testsuites>
