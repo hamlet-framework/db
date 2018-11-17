@@ -5,6 +5,7 @@ namespace Hamlet\Database;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use SplQueue;
 
 /**
  * @template T
@@ -22,9 +23,12 @@ class ConnectionPool implements LoggerAwareInterface
     private $logger;
 
     /**
-     * @var array<T>
+     * @var SplQueue<T>
      */
     private $pool = [];
+
+    /** @var int */
+    private $size;
 
     /**
      * @param callable():T $connector
@@ -33,6 +37,8 @@ class ConnectionPool implements LoggerAwareInterface
     {
         $this->connector = $connector;
         $this->logger = new NullLogger();
+        $this->pool = new SplQueue;
+        $this->size = 0;
     }
 
 
@@ -50,13 +56,15 @@ class ConnectionPool implements LoggerAwareInterface
      */
     public function pop()
     {
-        $connection = array_pop($this->pool);
-        if ($connection !== null) {
+        if ($this->size > 1) {
             $this->logger->debug('Fetching connection from pool (' . count($this->pool) . ' connections left in pool)');
-            return $connection;
+            $this->size--;
+            $connection = $this->pool->pop();
+        } else {
+            $this->logger->debug('Opening new connection');
+            $connection = ($this->connector)();
         }
-        $this->logger->debug('Opening new connection');
-        return ($this->connector)();
+        return $connection;
     }
 
     /**
@@ -66,6 +74,7 @@ class ConnectionPool implements LoggerAwareInterface
     public function push($connection)
     {
         $this->logger->debug('Releasing connection back to pool (' . count($this->pool) . ' connections)');
-        array_push($this->pool, $connection);
+        $this->size++;
+        $this->pool->push($connection);
     }
 }
