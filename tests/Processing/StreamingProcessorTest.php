@@ -8,7 +8,4 @@ class StreamingProcessorTest extends BatchProcessorTest
     {
         return true;
     }
-
-
-
 }

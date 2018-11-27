@@ -18,6 +18,9 @@ trait EntityFactoryTrait
     /** @var array<string,bool> */
     private static $entitySubclasses = [];
 
+    /** @var array<string,\ReflectionMethod> */
+    private static $typeResolvers = [];
+
     /**
      * @param mixed $item
      * @return bool
@@ -73,42 +76,82 @@ trait EntityFactoryTrait
      */
     private function instantiateEntity(string $typeName, array $data)
     {
-        if (!isset(self::$types[$typeName])) {
-            self::$properties[$typeName] = [];
-            try {
-                $type = new ReflectionClass($typeName);
-                self::$types[$typeName] = $type;
-                foreach ($type->getProperties() as &$property) {
-                    $property->setAccessible(true);
-                    self::$properties[$typeName][$property->getName()] = $property;
-                }
-            } catch (ReflectionException $e) {
-                throw new RuntimeException('Cannot load reflection information for ' . $typeName, 1, $e);
+        /**
+         * @var \ReflectionClass $type
+         * @var \ReflectionProperty[] $properties
+         * @var \ReflectionMethod|null $typeResolver
+         */
+        list($type, $properties, $typeResolver) = $this->getType($typeName);
+
+        if ($typeResolver) {
+            /**
+             * @var \ReflectionClass $resolvedType
+             * @var \ReflectionProperty[] $resolvedProperties
+             */
+            list($resolvedType, $resolvedProperties) = $this->getType($typeResolver->invoke(null, $data));
+            if ($resolvedType !== $type && !$resolvedType->isSubclassOf($type)) {
+                throw new RuntimeException('Resolved type ' . $resolvedType->getName() . ' is not subclass of ' . $type->getName());
             }
+            $type = $resolvedType;
+            $properties = $resolvedProperties;
         }
 
-        /** @var \ReflectionClass $type */
-        $type = self::$types[$typeName];
         $object = $type->newInstanceWithoutConstructor();
-
         $propertiesSet = [];
         foreach ($data as $name => &$value) {
-            if (!isset(self::$properties[$typeName][$name])) {
+            if (!isset($properties[$name])) {
                 throw new RuntimeException('Property ' . $name . ' not found in class ' . $typeName);
             }
             $propertiesSet[$name] = 1;
-            /** @var \ReflectionProperty $property */
-            $property = self::$properties[$typeName][$name];
+            $property = $properties[$name];
             $property->setValue($object, $value);
         }
 
         /** @noinspection PhpUnusedLocalVariableInspection */
-        foreach (self::$properties[$typeName] as $name => &$_) {
+        foreach ($properties as $name => &$_) {
             if (!isset($propertiesSet[$name])) {
                 throw new RuntimeException('Property ' . $typeName . '::' . $name . ' not set in ' . json_encode($data));
             }
         }
 
         return $object;
+    }
+
+    private function getType(string $typeName): array
+    {
+        if (!isset(self::$types[$typeName])) {
+            self::$properties[$typeName] = [];
+            try {
+                $type = new ReflectionClass($typeName);
+            } catch (ReflectionException $e) {
+                throw new RuntimeException('Cannot load reflection information for ' . $typeName, 1, $e);
+            }
+
+            self::$types[$typeName] = $type;
+            foreach ($type->getProperties() as &$property) {
+                $property->setAccessible(true);
+                self::$properties[$typeName][$property->getName()] = $property;
+            }
+
+            /** @var \ReflectionClass $type */
+            $type = self::$types[$typeName];
+            do {
+                if ($type->hasMethod('__resolveType')) {
+                    try {
+                        $method = $type->getMethod('__resolveType');
+                    } catch (ReflectionException $e) {
+                        throw new RuntimeException('Cannot access __resolveType method', $e->getCode(), $e);
+                    }
+
+                    if (!$method->isStatic() || !$method->isPublic()) {
+                        throw new RuntimeException('Method __resolveType must be public static method');
+                    }
+                    self::$typeResolvers[$typeName] = $method;
+                    break;
+                }
+            } while ($type = $type->getParentClass());
+        }
+
+        return [self::$types[$typeName], self::$properties[$typeName], self::$typeResolvers[$typeName] ?? null];
     }
 }
