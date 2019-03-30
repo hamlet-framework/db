@@ -3,7 +3,7 @@
 namespace Hamlet\Database\Traits;
 
 /**
- * @template K
+ * @template K as array-key
  * @template V
  */
 trait SplitterTrait
@@ -11,7 +11,7 @@ trait SplitterTrait
     /**
      * @var array<string,array<string,string>>
      */
-    static private $prefixCache = [];
+    private static $prefixCache = [];
 
     /**
      * @param string $field
@@ -57,7 +57,7 @@ trait SplitterTrait
     /**
      * @param string $keyField
      * @param string $valueField
-     * @return callable(array<K,V>):array{0:array<int|string|float|null,V>,1:array<K,V>}
+     * @return callable(array<K,V>):array{0:array<int|string|float|null,V>,1:array<K, V>}
      */
     private function mapSplitter(string $keyField, string $valueField): callable
     {

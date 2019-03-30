@@ -13,6 +13,7 @@ Base package for following sub-projects
 
 ## Outstanding ToDo
 
-- Fix annotations on Stream package
+- Add tracing to processor so that all transformations could be traced
+- Fix annotations
 - Test coverage
 - Add benchmarks

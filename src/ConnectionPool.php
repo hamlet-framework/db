@@ -25,9 +25,11 @@ class ConnectionPool implements LoggerAwareInterface
     /**
      * @var SplQueue<T>
      */
-    private $pool = [];
+    private $pool;
 
-    /** @var int */
+    /**
+     * @var int
+     */
     private $size;
 
     /**

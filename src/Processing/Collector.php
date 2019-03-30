@@ -6,7 +6,7 @@ use Generator;
 use Iterator;
 
 /**
- * @template I
+ * @template I as array-key
  * @template T
  */
 class Collector

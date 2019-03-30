@@ -101,6 +101,7 @@ abstract class Database implements LoggerAwareInterface
             }
             $result = $callable();
             if (!$nested) {
+                assert($this->pinnedConnection !== null);
                 $this->commit($this->pinnedConnection);
                 $this->pool->push($this->pinnedConnection);
                 $this->pinnedConnection = null;

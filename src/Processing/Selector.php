@@ -2,25 +2,32 @@
 
 namespace Hamlet\Database\Processing;
 
+use Generator;
 use Hamlet\Database\Traits\SplitterTrait;
 
 /**
- * @template I
- * @template K
+ * @template I as array-key
+ * @template K as array-key
  * @template V
  *
- * @template-extends Collector<I,array<K,V>>
+ * @extends Collector<I, array<K, V>>
  */
 class Selector extends Collector
 {
-    /**
-     * @template-use SplitterTrait<K,V>
-     */
     use SplitterTrait;
 
     /**
+     * @param Generator<I, array<K, V>, mixed, void> $records
+     * @param bool $streamingMode
+     */
+    public function __construct(Generator $records, bool $streamingMode)
+    {
+        parent::__construct($records, $streamingMode);
+    }
+
+    /**
      * @param string $field
-     * @return Converter<I,K,V,V>
+     * @return Converter<I, K, V, V>
      */
     public function selectValue(string $field): Converter
     {
@@ -40,7 +47,7 @@ class Selector extends Collector
     /**
      * @param string $keyField
      * @param string $valueField
-     * @return MapConverter<I,K,V,array<int|string|float,V>>
+     * @return MapConverter<I,K,V,int|string|float|null,V>
      */
     public function map(string $keyField, string $valueField): MapConverter
     {
@@ -79,35 +86,45 @@ class Selector extends Collector
      */
     public function coalesceAll(): Collector
     {
-        $generator = function () {
-            foreach ($this->records as $key => $record) {
-                foreach ($record as &$value) {
-                    if ($value !== null) {
-                        yield $key => $value;
-                        break;
+        $generator =
+            /**
+             * @return Generator<I,V,mixed,void>
+             */
+            function (): Generator {
+                foreach ($this->records as $key => $record) {
+                    foreach ($record as &$value) {
+                        if ($value !== null) {
+                            yield $key => $value;
+                            break;
+                        }
                     }
                 }
-            }
-        };
+            };
 
         return new Collector($generator(), $this->streamingMode);
     }
 
     /**
      * @param string $keyField
-     * @return Collector<int|string|float,V>
+     * @return Collector<array-key,array<K,V>>
+     *
+     * @todo it would be nice to have an intersection type Collector<V & array-key, array<K, V>>
      */
     public function withKey(string $keyField): Collector
     {
-        $generator = function () use ($keyField) {
-            foreach ($this->records as &$record) {
-                $key = $record[$keyField];
-                if ($key === null) {
-                    continue;
+        $generator =
+            /**
+             * @return Generator<array-key, array<K, V>, mixed, void>
+             */
+            function () use ($keyField): Generator {
+                foreach ($this->records as &$record) {
+                    $key = $record[$keyField];
+                    if ($key === null) {
+                        continue;
+                    }
+                    \assert(\is_int($key) || \is_string($key));
+                    yield $key => $record;
                 }
-                \assert(\is_int($key) || \is_string($key) || \is_float($key));
-                yield $key => $record;
-            }
         };
 
         return new Collector($generator(), $this->streamingMode);

@@ -16,10 +16,11 @@
     "psr/log": "@stable"
   },
   "require-dev": {
-    "vimeo/psalm": "dev-master",
     "phpunit/phpunit": "^7",
-    "squizlabs/php_codesniffer": "@stable",
-    "monolog/monolog": "@stable"
+    "squizlabs/php_codesniffer": "dev-master",
+    "monolog/monolog": "@stable",
+    "vimeo/psalm": "dev-master",
+    "phpstan/phpstan": "dev-master"
   },
   "autoload": {
     "psr-4": {
