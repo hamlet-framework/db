@@ -2,8 +2,8 @@
 
 Hamlet DB supports tagged inheritance, by using a special method `__resolveType`. 
 
-Let's take an example of a `users` table with each user having an ID, a name and optionally a latitude and a longitude.
-We can map each row into two different entities based on availability of geo location. 
+As an example take a table called `users` with each user having an ID, a name and optionally a latitude and a longitude.
+Each row can be mapped into two different entities based on availability of geo location. 
 
 First step is to create the following type hierarchy
 
@@ -12,21 +12,27 @@ class User implements Entity
 {
     protected $id, $name, $latitude, $longitude;
     
-    public function id(): int {...}
+    public function id(): int 
+    {
+        return $this->id;
+    }
     
-    public function name(): string {...}
+    public function name(): string 
+    {
+        return $this->name;
+    }
 }
 
 class UserWithLocation extends User
 {
-    public function location(): Coordinates {...}
+    public function location(): Coordinates 
+    {
+        return new Coordinates($this->latitude, $this->longitude);
+    }
 }
 ```
 
-To do so we need to explain to Hamlet processor how to differentiate between a `User` and `UserWithLocation`. 
-And for this we need to create a public static method `__resolveType` in the root class of hierarchy.
- 
-In our case:
+In order to differentiate between these two types Hamlet processor uses a methods called `__resolveType` placed in the root of the hierarchy:
 
 ```php
 class User implements Entity 
@@ -43,7 +49,7 @@ class User implements Entity
 }
 ```
 
-After that if you try and run the processor
+Running the following processor
 
 ```php
 ...->selectAll()->cast(User::class)->collectAll();
@@ -58,9 +64,9 @@ over the result set
     |  2 |  Petr  |     null |      null |
     +----+--------+----------+-----------+
     
-The `collectAll` will return two objects, first object will be of type `UserWithLocation` and the second object will be of type `User`.
+returns two objects, first object of type `UserWithLocation` and the second object will be of type `User`.
 
-Interestingly enough, if you try and run 
+Additionally, when running the processor 
 
 ```php
 ...->selectAll()->cast(UserWithLocation::class)->collectAll();

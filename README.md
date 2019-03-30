@@ -7,7 +7,6 @@ Base package for following sub-projects
 
 - hamlet/db-mysql
 - hamlet/db-mysql-swoole
-- hamlet/db-mysql-amp
 - hamlet/db-sqlite
 - hamlet/db-pdo
 
@@ -17,3 +16,5 @@ Base package for following sub-projects
 - Fix annotations
 - Test coverage
 - Add benchmarks
+- Add : void wherever necessary
+- Add ? instead of nullability
