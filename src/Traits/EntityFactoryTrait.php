@@ -44,9 +44,12 @@ trait EntityFactoryTrait
     /**
      * @template S
      * @template T
-     * @param class-string<S> $typeName
-     * @param array<string,T> $data
-     * @return S|null
+     * @param string $typeName
+     * @psalm-param class-string<S> $typeName
+     * @param array<string,mixed> $data
+     * @psalm-param array<string,T> $data
+     * @return mixed
+     * @psalm-return S|null
      */
     private function instantiate(string $typeName, array $data)
     {
@@ -72,9 +75,12 @@ trait EntityFactoryTrait
     /**
      * @template S
      * @template T
-     * @param class-string<S> $typeName
-     * @param array<string,T> $data
-     * @return S
+     * @param string $typeName
+     * @psalm-param class-string<S> $typeName
+     * @param array<string,mixed> $data
+     * @psalm-param array<string,T> $data
+     * @return mixed
+     * @psalm-return S
      */
     private function instantiateEntity(string $typeName, array $data)
     {
@@ -134,8 +140,10 @@ trait EntityFactoryTrait
 
     /**
      * @template S
-     * @param class-string<S> $typeName
-     * @return array{0:\ReflectionClass,1:array<string,\ReflectionProperty>,2:\ReflectionMethod|null}
+     * @param string $typeName
+     * @psalm-param class-string<S> $typeName
+     * @return array
+     * @psalm-return array{0:\ReflectionClass,1:array<string,\ReflectionProperty>,2:\ReflectionMethod|null}
      */
     private function getType(string $typeName): array
     {
@@ -166,6 +174,7 @@ trait EntityFactoryTrait
                     throw new RuntimeException('Method __resolveType must be public static method');
                 }
                 assert($method instanceof \ReflectionMethod);
+                self::$typeResolvers[$typeName] = $method;
                 break;
             } while ($type = $type->getParentClass());
         }

@@ -12,7 +12,8 @@ use Iterator;
 class Collector
 {
     /**
-     * @var Generator<I,T,mixed,void>
+     * @var Generator
+     * @psalm-var Generator<I,T,mixed,void>
      */
     protected $records;
 
@@ -22,7 +23,8 @@ class Collector
     protected $streamingMode;
 
     /**
-     * @param Generator<I,T,mixed,void> $records
+     * @param Generator $records
+     * @psalm-param Generator<I,T,mixed,void> $records
      * @param bool $streamingMode
      */
     public function __construct(Generator $records, bool $streamingMode)
@@ -32,7 +34,8 @@ class Collector
     }
 
     /**
-     * @return array<I,T>
+     * @return array
+     * @psalm-return array<I,T>
      */
     public function collectAll(): array
     {
@@ -40,7 +43,8 @@ class Collector
     }
 
     /**
-     * @return T|null
+     * @return mixed
+     * @psalm-return T|null
      */
     public function collectHead()
     {
@@ -48,7 +52,8 @@ class Collector
     }
 
     /**
-     * @return Iterator<I,T>
+     * @return Iterator
+     * @psalm-return Iterator<I,T>
      */
     public function iterator(): Iterator
     {

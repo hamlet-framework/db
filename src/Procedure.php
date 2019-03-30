@@ -15,7 +15,8 @@ abstract class Procedure implements LoggerAwareInterface
     protected $logger;
 
     /**
-     * @var array<array{0:string,1:string|float|int|array<string>|array<float>|array<int>|null}>
+     * @var array
+     * @psalm-var array<array{0:string,1:string|float|int|array<string>|array<float>|array<int>|null}>
      */
     protected $parameters = [];
 
@@ -46,25 +47,21 @@ abstract class Procedure implements LoggerAwareInterface
 
     public function bindNullableBlob(?string $value): void
     {
-        assert($value === null || \is_string($value));
         $this->parameters[] = ['b', $value];
     }
 
     public function bindNullableFloat(?float $value): void
     {
-        \assert($value === null || \is_float($value));
         $this->parameters[] = ['d', $value];
     }
 
     public function bindNullableInteger(?int $value): void
     {
-        \assert($value === null || \is_int($value));
         $this->parameters[] = ['i', $value];
     }
 
     public function bindNullableString(?string $value): void
     {
-        \assert($value === null || \is_string($value));
         $this->parameters[] = ['s', $value];
     }
 
@@ -105,7 +102,8 @@ abstract class Procedure implements LoggerAwareInterface
     }
 
     /**
-     * @return Generator<int,array<string,int|string|float|null>,mixed,void>
+     * @return Generator
+     * @psalm-return Generator<int,array<string,int|string|float|null>,mixed,void>
      */
     abstract protected function fetch(): Generator;
 
@@ -129,13 +127,15 @@ abstract class Procedure implements LoggerAwareInterface
     }
 
     /**
-     * @return Selector<int,string,int|string|float|null>
+     * @return Selector
+     * @psalm-return Selector<int,string,int|string|float|null>
      */
     public function processOne(): Selector
     {
         $generator =
             /**
-             * @return Generator<int,array<string,int|string|float|null>,mixed,void>
+             * @return Generator
+             * @psalm-return Generator<int,array<string,int|string|float|null>,mixed,void>
              */
             function () {
                 foreach ($this->fetch() as $key => $record) {
@@ -147,7 +147,8 @@ abstract class Procedure implements LoggerAwareInterface
     }
 
     /**
-     * @return Selector<int,string,int|string|float|null>
+     * @return Selector
+     * @psalm-return Selector<int,string,int|string|float|null>
      */
     public function processAll(): Selector
     {
@@ -155,7 +156,8 @@ abstract class Procedure implements LoggerAwareInterface
     }
 
     /**
-     * @return Selector<int,string,int|string|float|null>
+     * @return Selector
+     * @psalm-return Selector<int,string,int|string|float|null>
      */
     public function stream(): Selector
     {

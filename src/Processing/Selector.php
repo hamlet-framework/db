@@ -17,7 +17,8 @@ class Selector extends Collector
     use SplitterTrait;
 
     /**
-     * @param Generator<I, array<K, V>, mixed, void> $records
+     * @param Generator $records
+     * @psalm-param Generator<I, array<K, V>, mixed, void> $records
      * @param bool $streamingMode
      */
     public function __construct(Generator $records, bool $streamingMode)
@@ -27,7 +28,8 @@ class Selector extends Collector
 
     /**
      * @param string $field
-     * @return Converter<I, K, V, V>
+     * @return Converter
+     * @psalm-return Converter<I, K, V, V>
      */
     public function selectValue(string $field): Converter
     {
@@ -37,7 +39,8 @@ class Selector extends Collector
     /**
      * @param string $field
      * @param string ...$fields
-     * @return Converter<I,K,V,array<K,V>>
+     * @return Converter
+     * @psalm-return Converter<I,K,V,array<K,V>>
      */
     public function selectFields(string $field, string ...$fields): Converter
     {
@@ -47,7 +50,8 @@ class Selector extends Collector
     /**
      * @param string $keyField
      * @param string $valueField
-     * @return MapConverter<I,K,V,int|string|float|null,V>
+     * @return MapConverter
+     * @psalm-return MapConverter<I,K,V,int|string|float|null,V>
      */
     public function map(string $keyField, string $valueField): MapConverter
     {
@@ -56,7 +60,8 @@ class Selector extends Collector
 
     /**
      * @param string $prefix
-     * @return Converter<I,K,V,array<string,V>>
+     * @return Converter
+     * @psalm-return Converter<I,K,V,array<string,V>>
      */
     public function selectByPrefix(string $prefix): Converter
     {
@@ -64,7 +69,8 @@ class Selector extends Collector
     }
 
     /**
-     * @return Converter<I,K,V,array<K,V>>
+     * @return Converter
+     * @psalm-return Converter<I,K,V,array<K,V>>
      */
     public function selectAll(): Converter
     {
@@ -74,7 +80,8 @@ class Selector extends Collector
     /**
      * @param string $field
      * @param string ...$fields
-     * @return Converter<I,K,V,V|null>
+     * @return Converter
+     * @psalm-return Converter<I,K,V,V|null>
      */
     public function coalesce(string $field, string... $fields): Converter
     {
@@ -82,7 +89,8 @@ class Selector extends Collector
     }
 
     /**
-     * @return Collector<I,V>
+     * @return Collector
+     * @psalm-return Collector<I,V>
      */
     public function coalesceAll(): Collector
     {
@@ -106,7 +114,8 @@ class Selector extends Collector
 
     /**
      * @param string $keyField
-     * @return Collector<array-key,array<K,V>>
+     * @return Collector
+     * @psalm-return Collector<array-key,array<K,V>>
      *
      * @todo it would be nice to have an intersection type Collector<V & array-key, array<K, V>>
      */
@@ -114,7 +123,8 @@ class Selector extends Collector
     {
         $generator =
             /**
-             * @return Generator<array-key, array<K, V>, mixed, void>
+             * @return Generator
+             * @psalm-return Generator<array-key, array<K, V>, mixed, void>
              */
             function () use ($keyField): Generator {
                 foreach ($this->records as &$record) {
@@ -125,7 +135,7 @@ class Selector extends Collector
                     \assert(\is_int($key) || \is_string($key));
                     yield $key => $record;
                 }
-        };
+            };
 
         return new Collector($generator(), $this->streamingMode);
     }

@@ -13,7 +13,8 @@ use SplQueue;
 class ConnectionPool implements LoggerAwareInterface
 {
     /**
-     * @var callable():T
+     * @var callable
+     * @psalm-var callable():T
      */
     private $connector;
 
@@ -23,7 +24,8 @@ class ConnectionPool implements LoggerAwareInterface
     private $logger;
 
     /**
-     * @var SplQueue<T>
+     * @var SplQueue
+     * @psalm-var SplQueue<T>
      */
     private $pool;
 
@@ -33,7 +35,8 @@ class ConnectionPool implements LoggerAwareInterface
     private $size;
 
     /**
-     * @param callable():T $connector
+     * @param callable $connector
+     * @psalm-param callable():T $connector
      */
     public function __construct(callable $connector)
     {
@@ -54,7 +57,8 @@ class ConnectionPool implements LoggerAwareInterface
     }
 
     /**
-     * @return T
+     * @return mixed
+     * @psalm-return T
      */
     public function pop()
     {
@@ -70,7 +74,8 @@ class ConnectionPool implements LoggerAwareInterface
     }
 
     /**
-     * @param T $connection
+     * @param mixed $connection
+     * @psalm-param T $connection
      * @return void
      */
     public function push($connection)

@@ -25,8 +25,10 @@ class MapConverter extends Converter
     use EntityFactoryTrait;
 
     /**
-     * @param Generator<I,array<K,V>,mixed,void> $records
-     * @param callable(array<K,V>):array{0:array<K1,V1>,1:array<K,V>} $splitter
+     * @param Generator $records
+     * @psalm-param Generator<I,array<K,V>,mixed,void> $records
+     * @param callable $splitter
+     * @psalm-param callable(array<K,V>):array{0:array<K1,V1>,1:array<K,V>} $splitter
      * @param bool $streamingMode
      */
     public function __construct(Generator $records, callable $splitter, bool $streamingMode)
@@ -35,13 +37,15 @@ class MapConverter extends Converter
     }
 
     /**
-     * @return Collector<K1, V1>
+     * @return Collector
+     * @psalm-return Collector<K1, V1>
      */
     public function flatten(): Collector
     {
         $generator =
             /**
-             * @return Generator<K1, V1, mixed, void>
+             * @return Generator
+             * @psalm-return Generator<K1, V1, mixed, void>
              * @psalm-suppress MixedTypeCoercion
              * @psalm-suppress MixedOperand
              */
@@ -57,7 +61,8 @@ class MapConverter extends Converter
 
     /**
      * @param string $name
-     * @return Selector<I, K|string, array<K1, V1>|V>
+     * @return Selector
+     * @psalm-return Selector<I, K|string, array<K1, V1>|V>
      */
     public function flattenInto(string $name): Selector
     {
@@ -65,9 +70,9 @@ class MapConverter extends Converter
     }
 
     /**
-     * @param Generator<I, array<K, V>> $generator
      * @param string $name
-     * @return Generator<I, array<K|string, V|array<K1, V1>>, mixed, void>
+     * @return Generator
+     * @psalm-return Generator<I, array<K|string, V|array<K1, V1>>, mixed, void>
      */
     private function flattenRecordsInto(string $name): Generator
     {
@@ -79,9 +84,11 @@ class MapConverter extends Converter
     }
 
     /**
-     * @param Generator<I,array<K,V>> $generator
+     * @param Generator $generator
+     * @psalm-param Generator<I,array<K,V>> $generator
      * @param string $name
-     * @return Generator<I, array<K|string, V|array<K1,V1>>, mixed, void>
+     * @return Generator
+     * @psalm-return Generator<I, array<K|string, V|array<K1,V1>>, mixed, void>
      */
     private function flattenRecordsStreamingMode(Generator $generator, string $name): Generator
     {
@@ -121,9 +128,11 @@ class MapConverter extends Converter
     }
 
     /**
-     * @param Generator<I,array<K,V>> $generator
+     * @param Generator $generator
+     * @psalm-param Generator<I,array<K,V>> $generator
      * @param string $name
-     * @return Generator<I,array<K|string,V|array<K1,V1>>,mixed,void>
+     * @return Generator
+     * @psalm-return Generator<I,array<K|string,V|array<K1,V1>>,mixed,void>
      */
     private function flattenRecordsBatchMode(Generator $generator, string $name): Generator
     {

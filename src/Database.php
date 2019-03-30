@@ -19,17 +19,20 @@ abstract class Database implements LoggerAwareInterface
     protected $logger;
 
     /**
-     * @var T|null
+     * @var mixed
+     * @psalm-var T|null
      */
     private $pinnedConnection = null;
 
     /**
-     * @var ConnectionPool<T>
+     * @var ConnectionPool
+     * @psalm-var ConnectionPool<T>
      */
     private $pool;
 
     /**
-     * @param ConnectionPool<T> $pool
+     * @param ConnectionPool $pool
+     * @psalm-param ConnectionPool<T> $pool
      */
     protected function __construct(ConnectionPool $pool)
     {
@@ -54,15 +57,18 @@ abstract class Database implements LoggerAwareInterface
 
     /**
      * @template Q
-     * @return callable(callable(T):Q):Q
+     * @return callable
+     * @psalm-return callable(callable(T):Q):Q
      */
     protected function executor()
     {
         return
             /**
              * @template Q
-             * @param callable(T):Q $callback
-             * @return Q
+             * @param callable $callback
+             * @psalm-param callable(T):Q $callback
+             * @return mixed
+             * @psalm-return Q
              */
             function (callable $callback) {
                 if ($this->pinnedConnection) {
@@ -86,8 +92,10 @@ abstract class Database implements LoggerAwareInterface
 
     /**
      * @template Q
-     * @param callable():Q $callable
-     * @return Q
+     * @param callable $callable
+     * @psalm-param callable():Q $callable
+     * @return mixed
+     * @psalm-return Q
      */
     public function withTransaction(callable $callable)
     {
@@ -124,9 +132,11 @@ abstract class Database implements LoggerAwareInterface
 
     /**
      * @template Q
-     * @param callable():Q $callable
+     * @param callable $callable
+     * @psalm-param callable():Q $callable
      * @param int $maxAttempts
-     * @return Q
+     * @return mixed
+     * @psalm-return Q
      */
     public function tryWithTransaction(callable $callable, int $maxAttempts)
     {
@@ -143,19 +153,22 @@ abstract class Database implements LoggerAwareInterface
     }
 
     /**
-     * @param T $connection
+     * @param mixed $connection
+     * @psalm-param T $connection
      * @return void
      */
     abstract protected function startTransaction($connection);
 
     /**
-     * @param T $connection
+     * @param mixed $connection
+     * @psalm-param T $connection
      * @return void
      */
     abstract protected function commit($connection);
 
     /**
-     * @param T $connection
+     * @param mixed $connection
+     * @psalm-param T $connection
      * @return void
      */
     abstract protected function rollback($connection);
