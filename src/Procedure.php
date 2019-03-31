@@ -4,6 +4,7 @@ namespace Hamlet\Database;
 
 use Generator;
 use Hamlet\Database\Processing\Selector;
+use function iterator_to_array;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 

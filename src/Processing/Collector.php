@@ -4,6 +4,7 @@ namespace Hamlet\Database\Processing;
 
 use Generator;
 use Iterator;
+use function iterator_to_array;
 
 /**
  * @template I as array-key
