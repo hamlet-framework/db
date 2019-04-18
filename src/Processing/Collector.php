@@ -91,7 +91,7 @@ class Collector
     }
 
     /**
-     * @template K
+     * @template K as array-key
      * @template V
      * @param Type $keyType
      * @psalm-param Type<K> $keyType
@@ -99,6 +99,7 @@ class Collector
      * @psalm-param Type<V> $valueType
      * @return Collector
      * @psalm-return Collector<K,V>
+     * @psalm-suppress MixedTypeCoercion
      */
     public function assertType(Type $keyType, Type $valueType)
     {
