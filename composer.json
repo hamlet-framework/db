@@ -12,7 +12,8 @@
   ],
   "require": {
     "php": "^7.2",
-    "ext-json": "*",
+    "ext-json": "@stable",
+    "hamlet-framework/cast": "@stable",
     "psr/log": "@stable"
   },
   "require-dev": {

@@ -3,6 +3,7 @@
 namespace Hamlet\Database\Processing;
 
 use Generator;
+use Hamlet\Cast\Type;
 use Iterator;
 use function iterator_to_array;
 
@@ -24,6 +25,22 @@ class Collector
     protected $streamingMode;
 
     /**
+     * @var Type|null
+     */
+    protected $keyType;
+
+    /**
+     * @var Type|null
+     */
+    protected $valueType;
+
+    /**
+     * @var callable|null
+     * @psalm-var (callable(mixed,mixed):bool)|null
+     */
+    protected $assertion;
+
+    /**
      * @param Generator $records
      * @psalm-param Generator<I,T,mixed,void> $records
      * @param bool $streamingMode
@@ -40,7 +57,12 @@ class Collector
      */
     public function collectAll(): array
     {
-        return iterator_to_array($this->records);
+        $result = [];
+        foreach ($this->records as $key => $value) {
+            assert($this->validate($key, $value), 'Records validation');
+            $result[$key] = $value;
+        }
+        return $result;
     }
 
     /**
@@ -49,7 +71,11 @@ class Collector
      */
     public function collectHead()
     {
-        return $this->records->current();
+        foreach ($this->records as $key => $value) {
+            assert($this->validate($key, $value), 'Records validation');
+            return $value;
+        }
+        return null;
     }
 
     /**
@@ -58,6 +84,58 @@ class Collector
      */
     public function iterator(): Iterator
     {
-        return $this->records;
+        foreach ($this->records as $key => $value) {
+            assert($this->validate($key, $value), 'Records validation');
+            yield $value;
+        }
+    }
+
+    /**
+     * @template K
+     * @template V
+     * @param Type $keyType
+     * @psalm-param Type<K> $keyType
+     * @param Type $valueType
+     * @psalm-param Type<V> $valueType
+     * @return Collector
+     * @psalm-return Collector<K,V>
+     */
+    public function assertType(Type $keyType, Type $valueType)
+    {
+        $this->keyType = $keyType;
+        $this->valueType = $valueType;
+        return $this;
+    }
+
+    /**
+     * @param callable $callback
+     * @psalm-param callable(mixed,mixed):bool $callback
+     * @return self
+     */
+    public function assertForEach(callable $callback): self
+    {
+        $this->assertion = $callback;
+        return $this;
+    }
+
+    /**
+     * @param mixed $key
+     * @psalm-param I $key
+     * @param mixed $value
+     * @psalm-param T $value
+     * @return bool
+     */
+    private function validate($key, $value): bool
+    {
+        if ($this->keyType && !($this->keyType)($key)) {
+            return false;
+        }
+        if ($this->valueType && !($this->valueType)($value)) {
+            return false;
+        }
+        if ($this->assertion && !($this->assertion)($key, $value)) {
+            return false;
+        }
+        return true;
     }
 }

@@ -2,6 +2,12 @@
 
 namespace Hamlet\Database\Processing;
 
+use function Hamlet\Cast\_class;
+use function Hamlet\Cast\_int;
+use function Hamlet\Cast\_intersection;
+use function Hamlet\Cast\_map;
+use function Hamlet\Cast\_property;
+use function Hamlet\Cast\_string;
 use Hamlet\Database\Entity;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
@@ -227,6 +233,7 @@ class BatchProcessorTest extends TestCase
             ->selectByPrefix('address_')->castInto(Address::class, 'address')
             ->selectValue('address')->groupInto('addresses')
             ->selectAll()->cast(AddressBookEntry::class)
+            ->assertType(_int(), _class(AddressBookEntry::class))
             ->collectAll();
 
         Assert::assertInstanceOf(AddressBookEntry::class, $collection[0]);
@@ -237,6 +244,10 @@ class BatchProcessorTest extends TestCase
     {
         $collection = (new Selector($this->locations(), $this->streamingMode()))
             ->coalesceAll()
+            ->assertType(_int(), _string())
+            ->assertForEach(function ($id, $name) {
+                return !empty($name);
+            })
             ->collectAll();
 
         Assert::assertEquals('Victoria', $collection[0]);
@@ -259,6 +270,13 @@ class BatchProcessorTest extends TestCase
     {
         $collection = (new Selector($this->phones(), $this->streamingMode()))
             ->selectValue('phone')->groupInto('phones')
+            ->assertType(
+                _int(),
+                _intersection(
+                    _property('name', true, _string()),
+                    _property('phones', true, _map(_int(), _string()))
+                )
+            )
             ->collectAll();
 
         Assert::assertEquals([0, 2], array_keys($collection));
