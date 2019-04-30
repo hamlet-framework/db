@@ -101,7 +101,7 @@ abstract class Procedure implements LoggerAwareInterface
      * @param string|null $value
      * @return void
      */
-    public function bindNullableString(?string $value)
+    public function bindNullableString($value)
     {
         $this->parameters[] = ['s', $value];
     }
@@ -152,9 +152,10 @@ abstract class Procedure implements LoggerAwareInterface
     abstract protected function fetch(): Generator;
 
     /**
-     * @return array<string,int|string|float|null>|null
+     * @return array|null
+     * @psalm-return array<string,int|string|float|null>|null
      */
-    public function fetchOne(): ?array
+    public function fetchOne()
     {
         foreach ($this->fetch() as $record) {
             return $record;
@@ -163,7 +164,8 @@ abstract class Procedure implements LoggerAwareInterface
     }
 
     /**
-     * @return array<int,array<string,int|string|float|null>>
+     * @return array
+     * @psalm-return array<int,array<string,int|string|float|null>>
      */
     public function fetchAll(): array
     {
