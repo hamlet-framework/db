@@ -2,12 +2,21 @@
 
 namespace Hamlet\Database\Traits;
 
+use function array_fill;
+use function count;
+use function join;
+use function strlen;
+use function strpos;
+use function substr;
+
 trait QueryExpanderTrait
 {
     /**
      * @param string $query
-     * @param array<array{0:string,1:string|float|int|array<string>|array<float>|array<int>|null}> $parameters
-     * @return array{0:string,1:array<array{0:string,1:int|string|float|null}>}
+     * @param array $parameters
+     * @psalm-param array<array{0:string,1:string|float|int|array<string>|array<float>|array<int>|null}> $parameters
+     * @return array
+     * @psalm-return array{0:string,1:array<array{0:string,1:int|string|float|null}>}
      */
     private function unwrapQueryAndParameters(string $query, array $parameters): array
     {
@@ -18,7 +27,7 @@ trait QueryExpanderTrait
             $position = 0;
             $counter = 0;
             while (true) {
-                $position = \strpos($unwrappedQuery, '?', $position);
+                $position = strpos($unwrappedQuery, '?', $position);
                 if ($position === false) {
                     break;
                 }
@@ -29,12 +38,12 @@ trait QueryExpanderTrait
                     // this is more complex. (?) as well all FIELD(XML, ?) should be valid usages
                     // as well as ? inside of a string literal
                     //
-                    $in = '(' . \join(', ', \array_fill(0, \count($value), '?')) . ')';
-                    $unwrappedQuery = \substr($unwrappedQuery, 0, $position) . $in . \substr($unwrappedQuery, $position + 1);
+                    $in = '(' . join(', ', array_fill(0, count($value), '?')) . ')';
+                    $unwrappedQuery = substr($unwrappedQuery, 0, $position) . $in . substr($unwrappedQuery, $position + 1);
                     foreach ($value as $i) {
                         $unwrappedParameters[] = [$parameters[$counter][0], $i];
                     }
-                    $position += \strlen($in);
+                    $position += strlen($in);
                 } else {
                     $unwrappedParameters[] = $parameters[$counter];
                     $position++;

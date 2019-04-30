@@ -3,22 +3,33 @@
 namespace Hamlet\Database\Traits;
 
 use Hamlet\Database\Entity;
-use ReflectionClass;
 use ReflectionException;
 use RuntimeException;
 
 trait EntityFactoryTrait
 {
-    /** @var array<string,\ReflectionClass> $types */
+    /**
+     * @var array
+     * @psalm-var array<string,\ReflectionClass>
+     */
     private static $types = [];
 
-    /** @var array<string,array<string,\ReflectionProperty>> $properties */
+    /**
+     * @var array
+     * @psalm-var array<string,array<string,\ReflectionProperty>>
+     */
     private static $properties = [];
 
-    /** @var array<string,bool> */
+    /**
+     * @var array
+     * @psalm-var array<string,bool>
+     */
     private static $entitySubclasses = [];
 
-    /** @var array<string,\ReflectionMethod> */
+    /**
+     * @var array
+     * @psalm-var array<string,\ReflectionMethod>
+     */
     private static $typeResolvers = [];
 
     /**

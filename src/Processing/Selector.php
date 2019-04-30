@@ -2,8 +2,11 @@
 
 namespace Hamlet\Database\Processing;
 
+use function assert;
 use Generator;
 use Hamlet\Database\Traits\SplitterTrait;
+use function is_int;
+use function is_string;
 
 /**
  * @template I as array-key
@@ -96,7 +99,8 @@ class Selector extends Collector
     {
         $generator =
             /**
-             * @return Generator<I,V,mixed,void>
+             * @return Generator
+             * @psalm-return Generator<I,V,mixed,void>
              */
             function (): Generator {
                 foreach ($this->records as $key => $record) {
@@ -132,7 +136,7 @@ class Selector extends Collector
                     if ($key === null) {
                         continue;
                     }
-                    \assert(\is_int($key) || \is_string($key));
+                    assert(is_int($key) || is_string($key));
                     yield $key => $record;
                 }
             };

@@ -4,6 +4,10 @@ namespace Hamlet\Database\Processing;
 
 use Generator;
 use Hamlet\Database\Traits\EntityFactoryTrait;
+use function assert;
+use function is_null;
+use function md5;
+use function serialize;
 
 /**
  * I - Index type of all records
@@ -131,7 +135,7 @@ class Converter
 
         foreach ($generator as $key => $record) {
             list($item, $record) = ($this->splitter)($record);
-            $hash = \md5(\serialize($record));
+            $hash = md5(serialize($record));
             if (!isset($keys[$hash])) {
                 $keys[$hash] = $key;
             } else {
@@ -173,7 +177,7 @@ class Converter
                     }
                     $lastRecord[$name] = $currentGroup;
                     if (!$this->isNull($lastRecord)) {
-                        \assert(!\is_null($lastKey));
+                        assert(!is_null($lastKey));
                         yield $lastKey => $lastRecord;
                     }
                 }
@@ -187,7 +191,7 @@ class Converter
         }
         $lastRecord[$name] = $currentGroup;
         if (!$this->isNull($lastRecord)) {
-            \assert(!\is_null($lastKey));
+            assert(!is_null($lastKey));
             yield $lastKey => $lastRecord;
         }
     }
