@@ -59,7 +59,7 @@ class Collector
     {
         $result = [];
         foreach ($this->records as $key => $value) {
-            assert($this->validate($key, $value), 'Records validation');
+            $this->validate($key, $value);
             $result[$key] = $value;
         }
         return $result;
@@ -72,7 +72,7 @@ class Collector
     public function collectHead()
     {
         foreach ($this->records as $key => $value) {
-            assert($this->validate($key, $value), 'Records validation');
+            $this->validate($key, $value);
             return $value;
         }
         return null;
@@ -85,7 +85,7 @@ class Collector
     public function iterator(): Iterator
     {
         foreach ($this->records as $key => $value) {
-            assert($this->validate($key, $value), 'Records validation');
+            $this->validate($key, $value);
             yield $value;
         }
     }
@@ -124,19 +124,18 @@ class Collector
      * @psalm-param I $key
      * @param mixed $value
      * @psalm-param T $value
-     * @return bool
+     * @return void
      */
-    private function validate($key, $value): bool
+    private function validate($key, $value): void
     {
-        if ($this->keyType && !($this->keyType)($key)) {
-            return false;
+        if ($this->keyType) {
+            $this->keyType->assert($key);
         }
-        if ($this->valueType && !($this->valueType)($value)) {
-            return false;
+        if ($this->valueType) {
+            $this->valueType->assert($value);
         }
-        if ($this->assertion && !($this->assertion)($key, $value)) {
-            return false;
+        if ($this->assertion) {
+            assert(($this->assertion)($key, $value));
         }
-        return true;
     }
 }
