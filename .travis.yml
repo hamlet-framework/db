@@ -15,4 +15,6 @@ script:
   - ./vendor/bin/phpunit --testdox
   - ./vendor/bin/phpcs --standard=PSR2 -n src
   - ./vendor/bin/psalm
+  - ./vendor/bin/psalm --version
+  - ./vendor/bin/psalm --debug-by-line
   - ./vendor/bin/phpstan analyse --level 7 src
