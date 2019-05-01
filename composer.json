@@ -20,7 +20,7 @@
     "phpunit/phpunit": "^6 || ^7",
     "squizlabs/php_codesniffer": "@stable",
     "monolog/monolog": "@stable",
-    "vimeo/psalm": ">3",
+    "vimeo/psalm": ">2",
     "phpstan/phpstan": "@stable"
   },
   "autoload": {
