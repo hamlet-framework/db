@@ -13,7 +13,7 @@
   "require": {
     "php": "^7",
     "ext-json": "@stable",
-    "hamlet-framework/type": "dev-master",
+    "hamlet-framework/type": "@stable",
     "psr/log": "@stable"
   },
   "require-dev": {
