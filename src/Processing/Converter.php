@@ -15,8 +15,8 @@ use function serialize;
  * V - Value type of original record
  * E - Type of element extracted by splitter
  *
- * @template I as array-key
- * @template K as array-key
+ * @template I as int|string
+ * @template K as int|string
  * @template V
  * @template E
  */

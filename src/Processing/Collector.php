@@ -7,7 +7,7 @@ use Hamlet\Cast\Type;
 use Iterator;
 
 /**
- * @template I as array-key
+ * @template I as int|string
  * @template T
  */
 class Collector
@@ -90,7 +90,7 @@ class Collector
     }
 
     /**
-     * @template K as array-key
+     * @template K as int|string
      * @template V
      * @param Type $keyType
      * @psalm-param Type<K> $keyType
