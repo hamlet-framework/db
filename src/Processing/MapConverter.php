@@ -16,10 +16,10 @@ use function serialize;
  * K1 - Key type of the extracted record
  * V1 - Value type of the extracted record
  *
- * @template I as int|string
- * @template K as int|string
+ * @template I as array-key
+ * @template K as array-key
  * @template V
- * @template K1 as int|string
+ * @template K1 as array-key
  * @template V1
  *
  * @extends Converter<I, K, V, array<K1, V1>>

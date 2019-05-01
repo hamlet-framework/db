@@ -12,7 +12,7 @@ use function strpos;
 use function substr;
 
 /**
- * @template K as int|string
+ * @template K as array-key
  * @template V
  */
 trait SplitterTrait

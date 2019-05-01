@@ -9,8 +9,8 @@ use function is_int;
 use function is_string;
 
 /**
- * @template I as int|string
- * @template K as int|string
+ * @template I as array-key
+ * @template K as array-key
  * @template V
  *
  * @extends Collector<I, array<K, V>>
@@ -119,7 +119,7 @@ class Selector extends Collector
     /**
      * @param string $keyField
      * @return Collector
-     * @psalm-return Collector<int|string,array<K,V>>
+     * @psalm-return Collector<array-key,array<K,V>>
      *
      * @todo it would be nice to have an intersection type Collector<V & array-key, array<K, V>>
      */
@@ -128,7 +128,7 @@ class Selector extends Collector
         $generator =
             /**
              * @return Generator
-             * @psalm-return Generator<int|string, array<K, V>, mixed, void>
+             * @psalm-return Generator<array-key, array<K, V>, mixed, void>
              */
             function () use ($keyField): Generator {
                 foreach ($this->records as &$record) {
