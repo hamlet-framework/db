@@ -85,7 +85,7 @@ class Collector
     {
         foreach ($this->records as $key => $value) {
             $this->validate($key, $value);
-            yield $value;
+            yield $key => $value;
         }
     }
 
