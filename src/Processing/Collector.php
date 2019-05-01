@@ -125,7 +125,7 @@ class Collector
      * @psalm-param T $value
      * @return void
      */
-    private function validate($key, $value): void
+    private function validate($key, $value)
     {
         if ($this->keyType) {
             $this->keyType->assert($key);
