@@ -62,7 +62,7 @@ class ConnectionPool implements LoggerAwareInterface
      */
     public function pop()
     {
-        if ($this->size > 1) {
+        if ($this->size > 0) {
             $this->logger->debug('Fetching connection from pool (' . count($this->pool) . ' connections left in pool)');
             $this->size--;
             $connection = $this->pool->pop();

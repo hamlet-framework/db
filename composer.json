@@ -10,6 +10,11 @@
       "email": "info@kartashov.com"
     }
   ],
+  "config": {
+    "optimize-autoloader": true,
+    "classmap-authoritative": true,
+    "sort-packages": true
+  },
   "require": {
     "php": "^7",
     "ext-json": "@stable",
@@ -20,7 +25,8 @@
     "phpunit/phpunit": "^6 || ^7",
     "squizlabs/php_codesniffer": "@stable",
     "monolog/monolog": "@stable",
-    "vimeo/psalm": "@stable"
+    "vimeo/psalm": "@stable",
+    "phake/phake": "@stable"
   },
   "autoload": {
     "psr-4": {

@@ -3,8 +3,12 @@
 namespace Hamlet\Database\Traits;
 
 use Hamlet\Database\Entity;
+use ReflectionClass;
 use ReflectionException;
+use ReflectionMethod;
 use RuntimeException;
+use function is_array;
+use function is_subclass_of;
 
 trait EntityFactoryTrait
 {
@@ -40,7 +44,7 @@ trait EntityFactoryTrait
      */
     private function isNull($item): bool
     {
-        if (\is_array($item)) {
+        if (is_array($item)) {
             foreach ($item as &$value) {
                 if (!$this->isNull($value)) {
                     return false;
@@ -69,7 +73,7 @@ trait EntityFactoryTrait
         }
 
         if (!isset(self::$entitySubclasses[$typeName])) {
-            self::$entitySubclasses[$typeName] = \is_subclass_of($typeName, Entity::class);
+            self::$entitySubclasses[$typeName] = is_subclass_of($typeName, Entity::class);
         }
 
         if (self::$entitySubclasses[$typeName]) {
@@ -96,9 +100,9 @@ trait EntityFactoryTrait
     private function instantiateEntity(string $typeName, array $data)
     {
         /**
-         * @var \ReflectionClass $type
+         * @var ReflectionClass $type
          * @var array<string,\ReflectionProperty> $properties
-         * @var \ReflectionMethod|null $typeResolver
+         * @var ReflectionMethod|null $typeResolver
          */
         list($type, $properties, $typeResolver) = $this->getType($typeName);
 
@@ -114,7 +118,7 @@ trait EntityFactoryTrait
                 throw new RuntimeException('Cannot find class ' . $resolvedTypeName);
             }
             /**
-             * @var \ReflectionClass $resolvedType
+             * @var ReflectionClass $resolvedType
              * @var array<string,\ReflectionProperty> $resolvedProperties
              */
             list($resolvedType, $resolvedProperties) = $this->getType($resolvedTypeName);
@@ -161,7 +165,7 @@ trait EntityFactoryTrait
         if (!isset(self::$types[$typeName])) {
             self::$properties[$typeName] = [];
             try {
-                $type = new \ReflectionClass($typeName);
+                $type = new ReflectionClass($typeName);
                 self::$types[$typeName] = $type;
             } catch (ReflectionException $e) {
                 throw new RuntimeException('Cannot load reflection information for ' . $typeName, 1, $e);
@@ -184,19 +188,19 @@ trait EntityFactoryTrait
                 if (!$method->isStatic() || !$method->isPublic()) {
                     throw new RuntimeException('Method __resolveType must be public static method');
                 }
-                assert($method instanceof \ReflectionMethod);
+                assert($method instanceof ReflectionMethod);
                 self::$typeResolvers[$typeName] = $method;
                 break;
             } while ($type = $type->getParentClass());
         }
 
-        /** @var \ReflectionClass $type */
+        /** @var ReflectionClass $type */
         $type = self::$types[$typeName];
 
         /** @var array<string,\ReflectionProperty> $properties */
         $properties = self::$properties[$typeName];
 
-        /** @var \ReflectionMethod|null $typeResolver */
+        /** @var ReflectionMethod|null $typeResolver */
         $typeResolver = self::$typeResolvers[$typeName] ?? null;
 
         return [$type, $properties, $typeResolver];

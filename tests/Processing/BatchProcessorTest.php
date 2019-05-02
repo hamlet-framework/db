@@ -290,4 +290,21 @@ class BatchProcessorTest extends TestCase
 
         Assert::assertEquals([0, 2], array_keys($collection));
     }
+
+    public function testIterator()
+    {
+        $iterator = (new Selector($this->phones(), $this->streamingMode()))
+            ->map('phone', 'name')->flatten()
+            ->iterator();
+
+        $phones = [];
+        foreach ($iterator as $phone => $name) {
+            $phones[] = [
+                'name' => $name,
+                'phone' => $phone
+            ];
+        }
+
+        Assert::assertEquals(iterator_to_array($this->phones()), $phones);
+    }
 }
