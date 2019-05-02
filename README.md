@@ -7,14 +7,9 @@ Base package for following sub-projects
 
 - hamlet/db-mysql
 - hamlet/db-mysql-swoole
-- hamlet/db-sqlite
-- hamlet/db-pdo
+- hamlet/db-sqlite3
 
 ## Outstanding ToDo
 
 - Add tracing to processor so that all transformations could be traced
-- Fix annotations
-- Test coverage
-- Add benchmarks
-- Add : void wherever necessary
-- Add ? instead of nullability
+- Add property type validator on entity de-serialization
