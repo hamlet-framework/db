@@ -26,7 +26,8 @@
     "squizlabs/php_codesniffer": "@stable",
     "monolog/monolog": "@stable",
     "vimeo/psalm": "@stable",
-    "phake/phake": "@stable"
+    "phake/phake": "@stable",
+    "jakub-onderka/php-parallel-lint": "@stable"
   },
   "autoload": {
     "psr-4": {
