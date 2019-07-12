@@ -25,6 +25,12 @@ abstract class Database implements LoggerAwareInterface
     private $pinnedConnection = null;
 
     /**
+     * @var callable[]
+     * @psalm-var array<string,callable():void>
+     */
+    private $finally = [];
+
+    /**
      * @var ConnectionPool
      * @psalm-var ConnectionPool<T>
      */
@@ -92,12 +98,17 @@ abstract class Database implements LoggerAwareInterface
 
     /**
      * @template Q
-     * @param callable $callable
-     * @psalm-param callable():Q $callable
-     * @return mixed
+     *
+     * @param       callable                      $callable
+     * @psalm-param callable():Q                  $callable
+     *
+     * @param       callable[]                    $finally
+     * @psalm-param array<string,callable():void> $finally
+     *
+     * @return       mixed
      * @psalm-return Q
      */
-    public function withTransaction(callable $callable)
+    public function withTransaction(callable $callable, array $finally = [])
     {
         try {
             $nested = ($this->pinnedConnection !== null);
@@ -107,15 +118,21 @@ abstract class Database implements LoggerAwareInterface
                 $this->pinnedConnection = $this->pool->pop();
                 $this->startTransaction($this->pinnedConnection);
             }
+            $this->finally = array_merge($this->finally, $finally);
             $result = $callable();
             if (!$nested) {
                 assert($this->pinnedConnection !== null);
                 $this->commit($this->pinnedConnection);
                 $this->pool->push($this->pinnedConnection);
+                foreach ($this->finally as $callback) {
+                    $callback();
+                }
+                $this->finally = [];
                 $this->pinnedConnection = null;
             }
             return $result;
         } catch (Exception $e) {
+            $this->finally = [];
             if ($this->pinnedConnection !== null) {
                 try {
                     $this->rollback($this->pinnedConnection);
@@ -132,17 +149,23 @@ abstract class Database implements LoggerAwareInterface
 
     /**
      * @template Q
-     * @param callable $callable
-     * @psalm-param callable():Q $callable
-     * @param int $maxAttempts
-     * @return mixed
+     *
+     * @param       callable                      $callable
+     * @psalm-param callable():Q                  $callable
+     *
+     * @param       int                           $maxAttempts
+     *
+     * @param       callable[]                    $finally
+     * @psalm-param array<string,callable():void> $finally
+     *
+     * @return       mixed
      * @psalm-return Q
      */
-    public function tryWithTransaction(callable $callable, int $maxAttempts)
+    public function tryWithTransaction(callable $callable, int $maxAttempts, array $finally = [])
     {
         for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
             try {
-                return $this->withTransaction($callable);
+                return $this->withTransaction($callable, $finally);
             } catch (DatabaseException $e) {
                 if ($attempt == $maxAttempts) {
                     throw new DatabaseException('Transaction failed after ' . $attempt . ' attempt(s)', 0, $e);
