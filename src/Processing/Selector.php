@@ -54,7 +54,7 @@ class Selector extends Collector
      * @param string $keyField
      * @param string $valueField
      * @return MapConverter
-     * @psalm-return MapConverter<I,K,V,int|string|float|null,V>
+     * @psalm-return MapConverter<I,K,V,array-key,V>
      */
     public function map(string $keyField, string $valueField): MapConverter
     {

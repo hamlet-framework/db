@@ -22,17 +22,19 @@ use function serialize;
  * @template K1 as array-key
  * @template V1
  *
- * @extends Converter<I, K, V, array<K1, V1>>
+ * @extends Converter<I,K,V,array<K1,V1>>
  */
 class MapConverter extends Converter
 {
     use EntityFactoryTrait;
 
     /**
-     * @param Generator $records
+     * @param       Generator                          $records
      * @psalm-param Generator<I,array<K,V>,mixed,void> $records
-     * @param callable $splitter
+     *
+     * @param       callable                                                $splitter
      * @psalm-param callable(array<K,V>):array{0:array<K1,V1>,1:array<K,V>} $splitter
+     *
      * @param bool $streamingMode
      */
     public function __construct(Generator $records, callable $splitter, bool $streamingMode)
@@ -88,10 +90,12 @@ class MapConverter extends Converter
     }
 
     /**
-     * @param Generator $generator
+     * @param       Generator               $generator
      * @psalm-param Generator<I,array<K,V>> $generator
-     * @param string $name
-     * @return Generator
+     *
+     * @param       string                  $name
+     *
+     * @return       Generator
      * @psalm-return Generator<I, array<K|string, V|array<K1,V1>>, mixed, void>
      */
     private function flattenRecordsStreamingMode(Generator $generator, string $name): Generator
@@ -132,10 +136,12 @@ class MapConverter extends Converter
     }
 
     /**
-     * @param Generator $generator
+     * @param       Generator               $generator
      * @psalm-param Generator<I,array<K,V>> $generator
+     *
      * @param string $name
-     * @return Generator
+     *
+     * @return       Generator
      * @psalm-return Generator<I,array<K|string,V|array<K1,V1>>,mixed,void>
      */
     private function flattenRecordsBatchMode(Generator $generator, string $name): Generator

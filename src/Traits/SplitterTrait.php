@@ -74,7 +74,7 @@ trait SplitterTrait
      * @param string $keyField
      * @param string $valueField
      * @return callable
-     * @psalm-return callable(array<K,V>):array{0:array<int|string|float|null,V>,1:array<K, V>}
+     * @psalm-return callable(array<K,V>):array{0:array<V>,1:array<K, V>}
      */
     private function mapSplitter(string $keyField, string $valueField): callable
     {
@@ -83,11 +83,14 @@ trait SplitterTrait
              * @param array $record
              * @psalm-param array<K,V> $record
              * @return array
-             * @psalm-return array{0:array<int|string|float|null,V>,1:array<K,V>}
+             * @psalm-return array{0:array<V>,1:array<K,V>}
              */
             function (array $record) use ($keyField, $valueField): array {
                 $key = $record[$keyField];
-                assert(is_null($key) || is_int($key) || is_string($key) || is_float($key));
+                if (!is_int($key)) {
+                    /** @psalm-suppress InvalidCast */
+                    $key = (string) $key;
+                }
                 $item = [
                     $key => $record[$valueField]
                 ];
