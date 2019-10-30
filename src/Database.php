@@ -34,7 +34,7 @@ abstract class Database implements LoggerAwareInterface
      * @var ConnectionPoolInterface
      * @psalm-var ConnectionPoolInterface<T>
      */
-    private $pool;
+    protected $pool;
 
     /**
      * @param ConnectionPoolInterface $pool
