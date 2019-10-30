@@ -8,6 +8,7 @@ use SplQueue;
 
 /**
  * @template T
+ * @implements ConnectionPoolInterface<T>
  */
 class ConnectionPool implements ConnectionPoolInterface
 {

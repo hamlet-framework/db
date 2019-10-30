@@ -31,16 +31,16 @@ abstract class Database implements LoggerAwareInterface
     private $onSuccess = [];
 
     /**
-     * @var ConnectionPool
-     * @psalm-var ConnectionPool<T>
+     * @var ConnectionPoolInterface
+     * @psalm-var ConnectionPoolInterface<T>
      */
     private $pool;
 
     /**
-     * @param ConnectionPool $pool
+     * @param ConnectionPoolInterface $pool
      * @psalm-param ConnectionPool<T> $pool
      */
-    protected function __construct(ConnectionPool $pool)
+    protected function __construct(ConnectionPoolInterface $pool)
     {
         $this->pool = $pool;
         $this->logger = new NullLogger();
