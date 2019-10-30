@@ -25,7 +25,7 @@
     "phpunit/phpunit": "^6 || ^7",
     "squizlabs/php_codesniffer": "@stable",
     "monolog/monolog": "@stable",
-    "vimeo/psalm": "<= 3.4.5",
+    "vimeo/psalm": "3.3.*",
     "phake/phake": "@stable",
     "jakub-onderka/php-parallel-lint": "@stable"
   },

@@ -2,7 +2,6 @@
 
 namespace Hamlet\Database;
 
-use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use SplQueue;
@@ -10,7 +9,7 @@ use SplQueue;
 /**
  * @template T
  */
-class ConnectionPool implements LoggerAwareInterface
+class ConnectionPool implements ConnectionPoolInterface
 {
     /**
      * @var callable

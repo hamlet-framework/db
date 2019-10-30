@@ -2,9 +2,9 @@
 
 namespace Hamlet\Database\Processing;
 
-use function assert;
 use Generator;
 use Hamlet\Database\Traits\SplitterTrait;
+use RuntimeException;
 use function is_int;
 use function is_string;
 
@@ -17,6 +17,9 @@ use function is_string;
  */
 class Selector extends Collector
 {
+    /**
+     * @use SplitterTrait<K,V>
+     */
     use SplitterTrait;
 
     /**
@@ -86,7 +89,7 @@ class Selector extends Collector
      * @return Converter
      * @psalm-return Converter<I,K,V,V|null>
      */
-    public function coalesce(string $field, string... $fields): Converter
+    public function coalesce(string $field, string ...$fields): Converter
     {
         return new Converter($this->records, $this->coalesceSplitter($field, ...$fields), $this->streamingMode);
     }
@@ -101,6 +104,7 @@ class Selector extends Collector
             /**
              * @return Generator
              * @psalm-return Generator<I,V,mixed,void>
+             * @psalm-suppress InvalidReturnType
              */
             function (): Generator {
                 foreach ($this->records as $key => $record) {
@@ -128,15 +132,17 @@ class Selector extends Collector
         $generator =
             /**
              * @return Generator
-             * @psalm-return Generator<array-key, array<K, V>, mixed, void>
+             * @psalm-return Generator<int|string,array<K,V>,mixed,void>
              */
             function () use ($keyField): Generator {
                 foreach ($this->records as &$record) {
-                    $key = $record[$keyField];
-                    if ($key === null) {
+                    if (!isset($record[$keyField])) {
                         continue;
                     }
-                    assert(is_int($key) || is_string($key));
+                    $key = $record[$keyField];
+                    if (!is_int($key) && !is_string($key)) {
+                        throw new RuntimeException('Expected valid key type, given ' . print_r($key));
+                    }
                     yield $key => $record;
                 }
             };

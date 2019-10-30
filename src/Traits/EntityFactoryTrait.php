@@ -57,8 +57,8 @@ trait EntityFactoryTrait
     }
 
     /**
-     * @template S
-     * @template T
+     * @template S as object
+     * @template T as int|string|float|bool|null|array|object
      * @param string $typeName
      * @psalm-param class-string<S> $typeName
      * @param array<string,mixed> $data
@@ -88,8 +88,8 @@ trait EntityFactoryTrait
     }
 
     /**
-     * @template S
-     * @template T
+     * @template S as object
+     * @template T as int|string|float|bool|null|array|object
      * @param string $typeName
      * @psalm-param class-string<S> $typeName
      * @param array<string,mixed> $data
@@ -100,7 +100,7 @@ trait EntityFactoryTrait
     private function instantiateEntity(string $typeName, array $data)
     {
         /**
-         * @var ReflectionClass $type
+         * @var ReflectionClass<S> $type
          * @var array<string,\ReflectionProperty> $properties
          * @var ReflectionMethod|null $typeResolver
          */
@@ -129,6 +129,7 @@ trait EntityFactoryTrait
             $properties = $resolvedProperties;
         }
 
+        /** @var S $object */
         $object = $type->newInstanceWithoutConstructor();
         $propertiesSet = [];
         foreach ($data as $name => &$value) {
@@ -142,7 +143,6 @@ trait EntityFactoryTrait
 
         /**
          * @noinspection PhpUnusedLocalVariableInspection
-         * @psalm-suppress MixedAssignment
          */
         foreach ($properties as $name => &$_) {
             if (!isset($propertiesSet[$name])) {

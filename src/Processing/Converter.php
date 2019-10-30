@@ -125,7 +125,7 @@ class Converter
      * @psalm-param Generator<I, array<K, V>, mixed, void> $generator
      * @param string $name
      * @return Generator
-     * @psalm-return Generator<I, array<K|string, V|array<int, E>>, mixed, void>
+     * @psalm-return Generator<I,array<K|string,V|array<int,E>>,mixed,void>
      */
     private function groupRecordsBatchMode(Generator $generator, string $name): Generator
     {
@@ -161,7 +161,8 @@ class Converter
      * @psalm-param Generator<I, array<K, V> ,mixed, void> $generator
      * @param string $name
      * @return Generator
-     * @psalm-return Generator<I, array<K|string, V|array<int, E>>, mixed, void>
+     * @psalm-return Generator<I,array<K|string,V|array<int,E>>,mixed,void>
+     * @psalm-suppress InvalidReturnType
      */
     private function groupRecordsStreamingMode(Generator $generator, string $name): Generator
     {
@@ -201,15 +202,16 @@ class Converter
      * @param string $typeName
      * @psalm-param class-string<Q> $typeName
      * @return Collector
-     * @psalm-return Collector<I, Q>
+     * @psalm-return Collector<I,Q>
      */
     public function cast(string $typeName): Collector
     {
         $generator =
             /**
              * @return Generator
-             * @psalm-return Generator<I, Q, mixed, void>
+             * @psalm-return Generator<I,Q,mixed,void>
              * @psalm-suppress MixedTypeCoercion
+             * @psalm-suppress InvalidReturnType
              */
             function () use ($typeName) {
                 foreach ($this->castRecordsInto($typeName, ':property:') as $key => $record) {
@@ -225,7 +227,7 @@ class Converter
      * @psalm-param class-string<Q> $typeName
      * @param string $name
      * @return Selector
-     * @psalm-return Selector<I, K|string, V|Q>
+     * @psalm-return Selector<I,K|string,V|Q>
      */
     public function castInto(string $typeName, string $name): Selector
     {
@@ -238,7 +240,7 @@ class Converter
      * @psalm-param class-string<Q> $typeName
      * @param string $name
      * @return Generator
-     * @psalm-return Generator<I, array<K|string, V|Q>, mixed, void>
+     * @psalm-return Generator<I,array<K|string,V|Q>,mixed,void>
      */
     private function castRecordsInto(string $typeName, string $name): Generator
     {
@@ -246,7 +248,7 @@ class Converter
             list($item, $record) = ($this->splitter)($record);
             /**
              * @psalm-suppress MixedTypeCoercion
-             * @psalm-var array<K, V> $record
+             * @psalm-var array<K,V> $record
              * @psalm-var Q $instance
              */
             $instance = $this->instantiate($typeName, $item);

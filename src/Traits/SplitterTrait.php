@@ -2,10 +2,8 @@
 
 namespace Hamlet\Database\Traits;
 
-use function assert;
-use function is_float;
+use RuntimeException;
 use function is_int;
-use function is_null;
 use function is_string;
 use function strlen;
 use function strpos;
@@ -38,6 +36,9 @@ trait SplitterTrait
              * @psalm-return array{0:V,1:array<K,V>}
              */
             function (array $record) use ($field): array {
+                if (!array_key_exists($field, $record)) {
+                    throw new RuntimeException('Property "' . $field . '" not set in ' . print_r($record, true));
+                }
                 $item = $record[$field];
                 unset($record[$field]);
                 return [$item, $record];
@@ -58,11 +59,14 @@ trait SplitterTrait
              * @param array $record
              * @psalm-param array<K,V> $record
              * @return array
-             * @psalm-return array{0:array<K,V>,1:array<K,V>}
+             * @psalm-return array{0:array<string,V>,1:array<K,V>}
              */
             function (array $record) use ($fields): array {
                 $item = [];
                 foreach ($fields as &$field) {
+                    if (!array_key_exists($field, $record)) {
+                        throw new RuntimeException('Property "' . $field . '" not set in ' . print_r($record, true));
+                    }
                     $item[$field] = $record[$field];
                     unset($record[$field]);
                 }
@@ -74,7 +78,7 @@ trait SplitterTrait
      * @param string $keyField
      * @param string $valueField
      * @return callable
-     * @psalm-return callable(array<K,V>):array{0:array<V>,1:array<K, V>}
+     * @psalm-return callable(array<K,V>):array{0:array<V>,1:array<K,V>}
      */
     private function mapSplitter(string $keyField, string $valueField): callable
     {
@@ -86,10 +90,16 @@ trait SplitterTrait
              * @psalm-return array{0:array<V>,1:array<K,V>}
              */
             function (array $record) use ($keyField, $valueField): array {
+                if (!array_key_exists($keyField, $record)) {
+                    throw new RuntimeException('Property "' . $keyField . '" not set in ' . print_r($record, true));
+                }
                 $key = $record[$keyField];
                 if (!is_int($key)) {
                     /** @psalm-suppress InvalidCast */
                     $key = (string) $key;
+                }
+                if (!array_key_exists($valueField, $record)) {
+                    throw new RuntimeException('Property "' . $valueField . '" not set in ' . print_r($record, true));
                 }
                 $item = [
                     $key => $record[$valueField]
@@ -176,6 +186,9 @@ trait SplitterTrait
                 $item = null;
                 foreach ($fields as &$field) {
                     if ($item === null) {
+                        if (!array_key_exists($field, $record)) {
+                            throw new RuntimeException('Property "' . $field . '" not set in ' . print_r($record, true));
+                        }
                         $item = $record[$field];
                     }
                     unset($record[$field]);
