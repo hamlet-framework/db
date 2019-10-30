@@ -16,23 +16,23 @@ class ConnectionPool implements ConnectionPoolInterface
      * @var callable
      * @psalm-var callable():T
      */
-    private $connector;
+    protected $connector;
 
     /**
      * @var LoggerInterface
      */
-    private $logger;
+    protected $logger;
 
     /**
      * @var SplQueue
      * @psalm-var SplQueue<T>
      */
-    private $pool;
+    protected $pool;
 
     /**
      * @var int
      */
-    private $size;
+    protected $size;
 
     /**
      * @param callable $connector
