@@ -35,6 +35,15 @@ abstract class Procedure implements LoggerAwareInterface
     }
 
     /**
+     * @template Q
+     * @param callable $callable
+     * @psalm-param callable():Q $callable
+     * @return mixed
+     * @psalm-return Q
+     */
+    abstract public function withSameConnection(callable $callable);
+
+    /**
      * @param string $value
      * @return void
      */

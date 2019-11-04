@@ -2,7 +2,7 @@
   "name": "hamlet-framework/db",
   "type": "framework",
   "description": "Hamlet Framework / DB",
-  "keywords": ["framework"],
+  "keywords": ["framework", "orm", "database"],
   "license": "Apache-2.0",
   "authors": [
     {
@@ -22,12 +22,12 @@
     "psr/log": "@stable"
   },
   "require-dev": {
+    "jakub-onderka/php-parallel-lint": "@stable",
+    "monolog/monolog": "@stable",
+    "phake/phake": "@stable",
     "phpunit/phpunit": "^6 || ^7",
     "squizlabs/php_codesniffer": "@stable",
-    "monolog/monolog": "@stable",
-    "vimeo/psalm": "3.2.* || 3.4.5",
-    "phake/phake": "@stable",
-    "jakub-onderka/php-parallel-lint": "@stable"
+    "vimeo/psalm": "3.2.* || 3.4.5"
   },
   "autoload": {
     "psr-4": {

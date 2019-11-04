@@ -5,7 +5,7 @@ namespace Hamlet\Database;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
 
-class ConnectionPoolTest extends TestCase
+class SimpleConnectionPoolTest extends TestCase
 {
     public function testFetchingFromAnEmptyPoolTriggersNewConnection()
     {
@@ -13,7 +13,7 @@ class ConnectionPoolTest extends TestCase
         $connector = function () use (&$connectorCallCount) {
             $connectorCallCount++;
         };
-        $pool = new ConnectionPool($connector);
+        $pool = new SimpleConnectionPool($connector);
         $pool->pop();
 
         Assert::assertEquals(1, $connectorCallCount);
@@ -25,7 +25,7 @@ class ConnectionPoolTest extends TestCase
         $connector = function () use (&$connectorCallCount) {
             $connectorCallCount++;
         };
-        $pool = new ConnectionPool($connector);
+        $pool = new SimpleConnectionPool($connector);
 
         $connection = $pool->pop();
         $pool->push($connection);

@@ -3,7 +3,6 @@
 namespace Hamlet\Database;
 
 use Exception;
-use InvalidArgumentException;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -25,22 +24,16 @@ abstract class Database implements LoggerAwareInterface
     private $pinnedConnection = null;
 
     /**
-     * @var callable[]
-     * @psalm-var array<string,callable():void>
-     */
-    private $onSuccess = [];
-
-    /**
-     * @var ConnectionPoolInterface
-     * @psalm-var ConnectionPoolInterface<T>
+     * @var ConnectionPool
+     * @psalm-var ConnectionPool<T>
      */
     protected $pool;
 
     /**
-     * @param ConnectionPoolInterface $pool
+     * @param ConnectionPool $pool
      * @psalm-param ConnectionPool<T> $pool
      */
-    protected function __construct(ConnectionPoolInterface $pool)
+    protected function __construct(ConnectionPool $pool)
     {
         $this->pool = $pool;
         $this->logger = new NullLogger();
@@ -63,8 +56,7 @@ abstract class Database implements LoggerAwareInterface
 
     /**
      * @template Q
-     *
-     * @return       callable
+     * @return callable
      * @psalm-return callable(callable(T):Q):Q
      */
     protected function executor()
@@ -99,17 +91,12 @@ abstract class Database implements LoggerAwareInterface
 
     /**
      * @template Q
-     *
-     * @param       callable                      $callable
-     * @psalm-param callable():Q                  $callable
-     *
-     * @param       callable[]                    $onSuccess
-     * @psalm-param array<string,callable():void> $onSuccess
-     *
-     * @return       mixed
+     * @param callable $callable
+     * @psalm-param callable():Q $callable
+     * @return mixed
      * @psalm-return Q
      */
-    public function withTransaction(callable $callable, array $onSuccess = [])
+    public function withTransaction(callable $callable)
     {
         try {
             $nested = ($this->pinnedConnection !== null);
@@ -119,21 +106,15 @@ abstract class Database implements LoggerAwareInterface
                 $this->pinnedConnection = $this->pool->pop();
                 $this->startTransaction($this->pinnedConnection);
             }
-            $this->onSuccess = array_merge($this->onSuccess, $onSuccess);
             $result = $callable();
             if (!$nested) {
                 assert($this->pinnedConnection !== null);
                 $this->commit($this->pinnedConnection);
                 $this->pool->push($this->pinnedConnection);
-                foreach ($this->onSuccess as $callback) {
-                    $callback();
-                }
-                $this->onSuccess = [];
                 $this->pinnedConnection = null;
             }
             return $result;
         } catch (Exception $e) {
-            $this->onSuccess = [];
             if ($this->pinnedConnection !== null) {
                 try {
                     $this->rollback($this->pinnedConnection);
@@ -146,34 +127,6 @@ abstract class Database implements LoggerAwareInterface
             }
             throw new DatabaseException('Transaction failed', 0, $e);
         }
-    }
-
-    /**
-     * @template Q
-     *
-     * @param       callable                      $callable
-     * @psalm-param callable():Q                  $callable
-     *
-     * @param       int                           $maxAttempts
-     *
-     * @param       callable[]                    $onSuccess
-     * @psalm-param array<string,callable():void> $onSuccess
-     *
-     * @return       mixed
-     * @psalm-return Q
-     */
-    public function tryWithTransaction(callable $callable, int $maxAttempts, array $onSuccess = [])
-    {
-        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
-            try {
-                return $this->withTransaction($callable, $onSuccess);
-            } catch (DatabaseException $e) {
-                if ($attempt == $maxAttempts) {
-                    throw new DatabaseException('Transaction failed after ' . $attempt . ' attempt(s)', 0, $e);
-                }
-            }
-        }
-        throw new InvalidArgumentException('Number of attempts must be greater than 0');
     }
 
     /**
