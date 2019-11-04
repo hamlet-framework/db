@@ -64,21 +64,21 @@ abstract class Database implements LoggerAwareInterface
     public function withDedicatedConnection(callable $callable)
     {
         try {
-            $nested = ($this->pinnedConnection !== null);
+            $nested = ($this->getPinnedConnection() !== null);
             if (!$nested) {
-                $this->pinnedConnection = $this->pool->pop();
+                $this->setPinnedConnection($this->pool->pop());
             }
             $result = $callable();
             if (!$nested) {
-                assert($this->pinnedConnection !== null);
-                $this->pool->push($this->pinnedConnection);
-                $this->pinnedConnection = null;
+                assert($this->getPinnedConnection() !== null);
+                $this->pool->push($this->getPinnedConnection());
+                $this->setPinnedConnection(null);
             }
             return $result;
         } catch (Exception $e) {
-            if ($this->pinnedConnection !== null) {
-                $this->pool->push($this->pinnedConnection);
-                $this->pinnedConnection = null;
+            if ($this->getPinnedConnection() !== null) {
+                $this->pool->push($this->getPinnedConnection());
+                $this->setPinnedConnection(null);
             }
             throw new DatabaseException('Failed to execute statement', 0, $e);
         }
@@ -94,34 +94,52 @@ abstract class Database implements LoggerAwareInterface
     public function withTransaction(callable $callable)
     {
         try {
-            $nested = ($this->pinnedConnection !== null);
+            $nested = ($this->getPinnedConnection() !== null);
             if ($nested) {
                 $this->logger->debug('Transaction already started');
             } else {
-                $this->pinnedConnection = $this->pool->pop();
-                $this->startTransaction($this->pinnedConnection);
+                $this->setPinnedConnection($this->pool->pop());
+                $this->startTransaction($this->getPinnedConnection());
             }
             $result = $callable();
             if (!$nested) {
-                assert($this->pinnedConnection !== null);
-                $this->commit($this->pinnedConnection);
-                $this->pool->push($this->pinnedConnection);
-                $this->pinnedConnection = null;
+                assert($this->getPinnedConnection() !== null);
+                $this->commit($this->getPinnedConnection());
+                $this->pool->push($this->getPinnedConnection());
+                $this->setPinnedConnection(null);
             }
             return $result;
         } catch (Exception $e) {
-            if ($this->pinnedConnection !== null) {
+            if ($this->getPinnedConnection() !== null) {
                 try {
-                    $this->rollback($this->pinnedConnection);
+                    $this->rollback($this->getPinnedConnection());
                 } catch (Exception $e1) {
                     throw new DatabaseException('Cannot rollback transaction', 0, $e1);
                 } finally {
-                    $this->pool->push($this->pinnedConnection);
-                    $this->pinnedConnection = null;
+                    $this->pool->push($this->getPinnedConnection());
+                    $this->setPinnedConnection(null);
                 }
             }
             throw new DatabaseException('Transaction failed', 0, $e);
         }
+    }
+
+    /**
+     * @return mixed
+     * @psalm-return T|null
+     */
+    protected function getPinnedConnection()
+    {
+        return $this->pinnedConnection;
+    }
+
+    /**
+     * @param mixed $connection
+     * @psalm-param T|null $connection
+     */
+    protected function setPinnedConnection($connection)
+    {
+        $this->pinnedConnection = $connection;
     }
 
     /**
