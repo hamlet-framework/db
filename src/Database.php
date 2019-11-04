@@ -56,37 +56,32 @@ abstract class Database implements LoggerAwareInterface
 
     /**
      * @template Q
-     * @return callable
-     * @psalm-return callable(callable(T):Q):Q
+     * @param callable $callable
+     * @psalm-param callable():Q $callable
+     * @return mixed
+     * @psalm-return Q
      */
-    protected function executor()
+    public function withDedicatedConnection(callable $callable)
     {
-        return
-            /**
-             * @template Q
-             * @param callable $callback
-             * @psalm-param callable(T):Q $callback
-             * @return mixed
-             * @psalm-return Q
-             */
-            function (callable $callback) {
-                if ($this->pinnedConnection) {
-                    $this->logger->debug('Executing using pinned connection');
-                    return ($callback)($this->pinnedConnection);
-                }
-
-                $connection = $this->pool->pop();
-                try {
-                    $this->logger->debug('Executing using a new connection from pool');
-                    return ($callback)($connection);
-                } catch (DatabaseException $exception) {
-                    throw $exception;
-                } catch (Exception $exception) {
-                    throw new DatabaseException('Database exception', 0, $exception);
-                } finally {
-                    $this->pool->push($connection);
-                }
-            };
+        try {
+            $nested = ($this->pinnedConnection !== null);
+            if (!$nested) {
+                $this->pinnedConnection = $this->pool->pop();
+            }
+            $result = $callable();
+            if (!$nested) {
+                assert($this->pinnedConnection !== null);
+                $this->pool->push($this->pinnedConnection);
+                $this->pinnedConnection = null;
+            }
+            return $result;
+        } catch (Exception $e) {
+            if ($this->pinnedConnection !== null) {
+                $this->pool->push($this->pinnedConnection);
+                $this->pinnedConnection = null;
+            }
+            throw new DatabaseException('Failed to execute statement', 0, $e);
+        }
     }
 
     /**
@@ -127,6 +122,41 @@ abstract class Database implements LoggerAwareInterface
             }
             throw new DatabaseException('Transaction failed', 0, $e);
         }
+    }
+
+    /**
+     * @template Q
+     * @return callable
+     * @psalm-return callable(callable(T):Q):Q
+     */
+    protected function executor()
+    {
+        return
+            /**
+             * @template Q
+             * @param callable $callback
+             * @psalm-param callable(T):Q $callback
+             * @return mixed
+             * @psalm-return Q
+             */
+            function (callable $callback) {
+                if ($this->pinnedConnection) {
+                    $this->logger->debug('Executing using pinned connection');
+                    return ($callback)($this->pinnedConnection);
+                }
+
+                $connection = $this->pool->pop();
+                try {
+                    $this->logger->debug('Executing using a new connection from pool');
+                    return ($callback)($connection);
+                } catch (DatabaseException $exception) {
+                    throw $exception;
+                } catch (Exception $exception) {
+                    throw new DatabaseException('Database exception', 0, $exception);
+                } finally {
+                    $this->pool->push($connection);
+                }
+            };
     }
 
     /**
