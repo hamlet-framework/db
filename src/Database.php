@@ -21,7 +21,12 @@ abstract class Database implements LoggerAwareInterface
      * @var mixed
      * @psalm-var T|null
      */
-    private $pinnedConnection = null;
+    private $dedicatedConnection = null;
+
+    /**
+     * @var bool
+     */
+    private $transactionStarted = false;
 
     /**
      * @var ConnectionPool
@@ -63,24 +68,23 @@ abstract class Database implements LoggerAwareInterface
      */
     public function withDedicatedConnection(callable $callable)
     {
+        $nested = ($this->getDedicatedConnection() !== null);
+        if (!$nested) {
+            $this->setDedicatedConnection($this->pool->pop());
+        }
         try {
-            $nested = ($this->getPinnedConnection() !== null);
-            if (!$nested) {
-                $this->setPinnedConnection($this->pool->pop());
-            }
-            $result = $callable();
-            if (!$nested) {
-                assert($this->getPinnedConnection() !== null);
-                $this->pool->push($this->getPinnedConnection());
-                $this->setPinnedConnection(null);
-            }
-            return $result;
+            return $callable();
+        } catch (DatabaseException $e) {
+            throw $e;
         } catch (Exception $e) {
-            if ($this->getPinnedConnection() !== null) {
-                $this->pool->push($this->getPinnedConnection());
-                $this->setPinnedConnection(null);
-            }
             throw new DatabaseException('Failed to execute statement', 0, $e);
+        } finally {
+            if (!$nested) {
+                $connection = $this->getDedicatedConnection();
+                assert($connection !== null);
+                $this->pool->push($connection);
+                $this->setDedicatedConnection(null);
+            }
         }
     }
 
@@ -93,34 +97,37 @@ abstract class Database implements LoggerAwareInterface
      */
     public function withTransaction(callable $callable)
     {
+        $newTransaction = !$this->transactionStarted;
+        $transactionOwnsConnection = false;
         try {
-            $nested = ($this->getPinnedConnection() !== null);
-            if ($nested) {
-                $this->logger->debug('Transaction already started');
+            if ($newTransaction) {
+                if ($this->getDedicatedConnection() === null) {
+                    $transactionOwnsConnection = true;
+                    $this->setDedicatedConnection($this->pool->pop());
+                }
+                $this->startTransaction($this->getDedicatedConnection());
+                $this->transactionStarted = true;
             } else {
-                $this->setPinnedConnection($this->pool->pop());
-                $this->startTransaction($this->getPinnedConnection());
+                $this->logger->debug('Transaction already started');
             }
-            $result = $callable();
-            if (!$nested) {
-                assert($this->getPinnedConnection() !== null);
-                $this->commit($this->getPinnedConnection());
-                $this->pool->push($this->getPinnedConnection());
-                $this->setPinnedConnection(null);
-            }
-            return $result;
+            return $callable();
+        } catch (DatabaseException $e) {
+            $this->rollback($this->getDedicatedConnection());
+            throw $e;
         } catch (Exception $e) {
-            if ($this->getPinnedConnection() !== null) {
-                try {
-                    $this->rollback($this->getPinnedConnection());
-                } catch (Exception $e1) {
-                    throw new DatabaseException('Cannot rollback transaction', 0, $e1);
-                } finally {
-                    $this->pool->push($this->getPinnedConnection());
-                    $this->setPinnedConnection(null);
+            $this->rollback($this->getDedicatedConnection());
+            throw new DatabaseException('Failed to execute statement', 0, $e);
+        } finally {
+            if ($newTransaction) {
+                $this->commit($this->getDedicatedConnection());
+                $this->transactionStarted = false;
+                if ($transactionOwnsConnection) {
+                    $connection = $this->getDedicatedConnection();
+                    assert($connection !== null);
+                    $this->setDedicatedConnection(null);
+                    $this->pool->push($connection);
                 }
             }
-            throw new DatabaseException('Transaction failed', 0, $e);
         }
     }
 
@@ -128,18 +135,19 @@ abstract class Database implements LoggerAwareInterface
      * @return mixed
      * @psalm-return T|null
      */
-    protected function getPinnedConnection()
+    protected function getDedicatedConnection()
     {
-        return $this->pinnedConnection;
+        return $this->dedicatedConnection;
     }
 
     /**
      * @param mixed $connection
      * @psalm-param T|null $connection
+     * @return void
      */
-    protected function setPinnedConnection($connection)
+    protected function setDedicatedConnection($connection)
     {
-        $this->pinnedConnection = $connection;
+        $this->dedicatedConnection = $connection;
     }
 
     /**
@@ -149,20 +157,20 @@ abstract class Database implements LoggerAwareInterface
      */
     protected function executor()
     {
-        return
-            /**
-             * @template Q
-             * @param callable $callback
-             * @psalm-param callable(T):Q $callback
-             * @return mixed
-             * @psalm-return Q
-             */
-            function (callable $callback) {
-                if ($this->pinnedConnection) {
-                    $this->logger->debug('Executing using pinned connection');
-                    return ($callback)($this->pinnedConnection);
+        $connection = $this->getDedicatedConnection();
+        if ($connection) {
+            return static function (callable $callback) use ($connection) {
+                try {
+                    $this->logger->debug('Executing using dedicated connection');
+                    return ($callback)($connection);
+                } catch (DatabaseException $exception) {
+                    throw $exception;
+                } catch (Exception $exception) {
+                    throw new DatabaseException('Database exception', 0, $exception);
                 }
-
+            };
+        } else {
+            return function (callable $callback) use ($connection) {
                 $connection = $this->pool->pop();
                 try {
                     $this->logger->debug('Executing using a new connection from pool');
@@ -175,6 +183,7 @@ abstract class Database implements LoggerAwareInterface
                     $this->pool->push($connection);
                 }
             };
+        }
     }
 
     /**
