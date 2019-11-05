@@ -154,6 +154,7 @@ abstract class Database implements LoggerAwareInterface
      * @template Q
      * @return callable
      * @psalm-return callable(callable(T):Q):Q
+     * @psalm-suppress MissingClosureReturnType
      */
     protected function executor()
     {
