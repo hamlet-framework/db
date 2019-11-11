@@ -16,17 +16,17 @@ abstract class Session implements LoggerAwareInterface
      * @var mixed
      * @psalm-var T
      */
-    private $handle;
+    protected $handle;
 
     /**
      * @var bool
      */
-    private $transactionStarted;
+    protected $transactionStarted;
 
     /**
      * @var LoggerInterface
      */
-    private $logger;
+    protected $logger;
 
     /**
      * @param mixed $handle
