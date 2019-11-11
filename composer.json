@@ -27,7 +27,7 @@
     "phake/phake": "@stable",
     "phpunit/phpunit": "^6 || ^7",
     "squizlabs/php_codesniffer": "@stable",
-    "vimeo/psalm": "3.2.* || 3.4.5"
+    "vimeo/psalm": "3.2.* || 3.4.4"
   },
   "autoload": {
     "psr-4": {
