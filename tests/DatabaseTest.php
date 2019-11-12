@@ -74,4 +74,27 @@ class DatabaseTest extends TestCase
             Phake::verify($pool)->push($connection)
         );
     }
+
+    public function testWithSessionPropagatesValue()
+    {
+        $connection = new stdClass;
+        $pool = Phake::mock(SimpleConnectionPool::class);
+        Phake::when($pool)->pop()->thenReturn($connection);
+
+        $session = Phake::partialMock(Session::class, $connection);
+        $database = Phake::partialMock(Database::class, $pool);
+        Phake::when($database)->createSession($connection)->thenReturn($session);
+
+        $result = $database->withSession(function ($session) {
+            return $session->withTransaction(function () use ($session) {
+                return $session->withTransaction(function () use ($session) {
+                    return $session->withTransaction(function () {
+                        return 42;
+                    });
+                });
+            });
+        });
+
+        Assert::assertEquals(42, $result);
+    }
 }

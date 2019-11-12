@@ -28,7 +28,7 @@ $processor->processAll()
     ->collectAll();
 ```
 
-There are two "flaky" aspects of this processing code. Firstly, static analyser 
+There are two flaky aspects of this processing code. Firstly, static analyser 
 most likely won't be able to guess the result of the `collectAll()`. Secondly, at one point there will be code
 down the stream that relies on the fact that the keys are exactly the same as the respective objects' IDs, i.e.
 key with value 8331 must point at the user with ID #8331.
@@ -49,13 +49,13 @@ $processor->processAll()
     ->selectByPrefix('user_')->castInto(User::class, 'user')
     ->map('id', 'user')->flatten()
     ->assertType(_int(), _class(User::class))
-    ->assertForEach(function ($key, $value) {
-        return (($value instanceof User) && ($key == $value->id());
+    ->assertForEach(function (int $key, User $value) {
+        return $value->id() === $key;
     })
     ->collectAll();
 ``` 
 
 Both checks are only enabled when assertions are enabled.
 
-To read more about type specifications used in `assertType` see: https://github.com/hamlet-framework/cast
+To read more about type specifications used in `assertType` see: https://github.com/hamlet-framework/type
 
