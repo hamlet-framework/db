@@ -97,4 +97,10 @@ class DatabaseTest extends TestCase
 
         Assert::assertEquals(42, $result);
     }
+
+    // @todo
+    public function _testWithSessionsPreservesKeys()
+    {
+
+    }
 }

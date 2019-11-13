@@ -72,4 +72,21 @@ abstract class Database implements LoggerAwareInterface
             $this->pool->push($handle);
         }
     }
+
+    /**
+     * @template K
+     * @template Q
+     * @param callable[] $callables
+     * @psalm-param array<K,callable(Session):Q> $callables
+     * @return array
+     * @psalm-return array<K,Q>
+     */
+    public function withSessions(array $callables)
+    {
+        $result = [];
+        foreach ($callables as $key => $callable) {
+            $result[$key] = $this->withSession($callable);
+        }
+        return $result;
+    }
 }
