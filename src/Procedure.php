@@ -36,79 +36,87 @@ abstract class Procedure implements LoggerAwareInterface
 
     /**
      * @param string $value
-     * @return void
+     * @return static
      */
     public function bindBlob(string $value)
     {
         $this->parameters[] = ['b', $value];
+        return $this;
     }
 
     /**
      * @param float $value
-     * @return void
+     * @return static
      */
     public function bindFloat(float $value)
     {
         $this->parameters[] = ['d', $value];
+        return $this;
     }
 
     /**
      * @param int $value
-     * @return void
+     * @return static
      */
     public function bindInteger(int $value)
     {
         $this->parameters[] = ['i', $value];
+        return $this;
     }
 
     /**
      * @param string $value
-     * @return void
+     * @return static
      */
     public function bindString(string $value)
     {
         $this->parameters[] = ['s', $value];
+        return $this;
     }
 
     /**
      * @param string|null $value
-     * @return void
+     * @return static
      */
     public function bindNullableBlob($value)
     {
         $this->parameters[] = ['b', $value];
+        return $this;
     }
 
     /**
      * @param float|null $value
-     * @return void
+     * @return static
      */
     public function bindNullableFloat($value)
     {
         $this->parameters[] = ['d', $value];
+        return $this;
     }
 
     /**
      * @param int|null $value
-     * @return void
+     * @return static
      */
     public function bindNullableInteger($value)
     {
         $this->parameters[] = ['i', $value];
+        return $this;
     }
 
     /**
      * @param string|null $value
-     * @return void
+     * @return static
      */
     public function bindNullableString($value)
     {
         $this->parameters[] = ['s', $value];
+        return $this;
     }
 
     /**
      * @param array<float> $values
-     * @return void
+     * @return static
      */
     public function bindFloatList(array $values)
     {
@@ -117,11 +125,12 @@ abstract class Procedure implements LoggerAwareInterface
             assert(is_float($value));
         }
         $this->parameters[] = ['d', $values];
+        return $this;
     }
 
     /**
      * @param array<int> $values
-     * @return void
+     * @return static
      */
     public function bindIntegerList(array $values)
     {
@@ -130,11 +139,12 @@ abstract class Procedure implements LoggerAwareInterface
             assert(is_int($value));
         }
         $this->parameters[] = ['i', $values];
+        return $this;
     }
 
     /**
      * @param array<string> $values
-     * @return void
+     * @return static
      */
     public function bindStringList(array $values)
     {
@@ -143,6 +153,7 @@ abstract class Procedure implements LoggerAwareInterface
             assert(is_string($value));
         }
         $this->parameters[] = ['s', $values];
+        return $this;
     }
 
     /**
