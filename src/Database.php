@@ -90,22 +90,4 @@ abstract class Database implements LoggerAwareInterface
         }
         return $result;
     }
-
-    /**
-     * @template Q
-     * @param BatchProcessor $batch
-     * @psalm-param Batch<Q> $batch
-     * @return array
-     * @psalm-suppress MissingClosureReturnType
-     */
-    public function processBatch(BatchProcessor $batch): array
-    {
-        $callables = [];
-        foreach ($batch->procedures() as $key => $procedure) {
-            $callables[$key] = function (Session $session) use ($batch, $procedure) {
-                return $batch->apply($procedure($session));
-            };
-        }
-        return $this->withSessions($callables);
-    }
 }
