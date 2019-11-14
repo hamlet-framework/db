@@ -4,6 +4,8 @@
 
 namespace Hamlet\Database;
 
+use Hamlet\Database\Batches\Batch;
+use Hamlet\Database\Processing\Collector;
 use Phake;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
@@ -98,9 +100,25 @@ class DatabaseTest extends TestCase
         Assert::assertEquals(42, $result);
     }
 
-    // @todo
-    public function _testWithSessionsPreservesKeys()
+    public function testBatchCollectingHeads()
     {
+        $connection = new stdClass;
+        $pool = Phake::mock(SimpleConnectionPool::class);
+        Phake::when($pool)->pop()->thenReturn($connection);
 
+        $session = Phake::partialMock(Session::class, $connection);
+        $database = Phake::partialMock(Database::class, $pool);
+        Phake::when($database)->createSession($connection)->thenReturn($session);
+
+        $batch = Batch::collectingHeads();
+        for ($i = 0; $i < 10; $i++) {
+            $batch->push(function (Session $session) use ($i) {
+                $collector = Phake::mock(Collector::class);
+                Phake::when($collector)->collectHead()->thenReturn($i * 2);
+                return $collector;
+            });
+        }
+        $result = $database->processBatch($batch);
+        Assert::assertEquals([0, 2, 4, 6, 8, 10, 12, 14, 16, 18], $result);
     }
 }
