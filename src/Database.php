@@ -92,9 +92,9 @@ abstract class Database implements LoggerAwareInterface
     }
 
     /**
-     * @template T
+     * @template Q
      * @param Batch $batch
-     * @psalm-param Batch<T> $batch
+     * @psalm-param Batch<Q> $batch
      * @return array
      * @psalm-suppress MissingClosureReturnType
      */
