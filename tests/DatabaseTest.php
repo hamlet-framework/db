@@ -98,28 +98,4 @@ class DatabaseTest extends TestCase
 
         Assert::assertEquals(42, $result);
     }
-
-    public function testBatchCollectingHeads()
-    {
-        $connection = new stdClass;
-        $pool = Phake::mock(SimpleConnectionPool::class);
-        Phake::when($pool)->pop()->thenReturn($connection);
-
-        $session = Phake::partialMock(Session::class, $connection);
-        $database = Phake::partialMock(Database::class, $pool);
-        Phake::when($database)->createSession($connection)->thenReturn($session);
-
-        $batch = new BatchProcessor(function (Procedure $procedure) {
-            return $procedure->fetchOne();
-        });
-        for ($i = 0; $i < 10; $i++) {
-            $batch->push(function () use ($i) {
-                $procedure = Phake::mock(Procedure::class);
-                Phake::when($procedure)->fetchOne()->thenReturn($i * 2);
-                return $procedure;
-            });
-        }
-        $result = $database->processBatch($batch);
-        Assert::assertEquals([0, 2, 4, 6, 8, 10, 12, 14, 16, 18], $result);
-    }
 }
