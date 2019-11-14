@@ -4,8 +4,7 @@
 
 namespace Hamlet\Database;
 
-use Hamlet\Database\Batches\Batch;
-use Hamlet\Database\Processing\Collector;
+use Hamlet\Database\Processing\BatchProcessor;
 use Phake;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
@@ -110,12 +109,14 @@ class DatabaseTest extends TestCase
         $database = Phake::partialMock(Database::class, $pool);
         Phake::when($database)->createSession($connection)->thenReturn($session);
 
-        $batch = Batch::collectingHeads();
+        $batch = new BatchProcessor(function (Procedure $procedure) {
+            return $procedure->fetchOne();
+        });
         for ($i = 0; $i < 10; $i++) {
-            $batch->push(function (Session $session) use ($i) {
-                $collector = Phake::mock(Collector::class);
-                Phake::when($collector)->collectHead()->thenReturn($i * 2);
-                return $collector;
+            $batch->push(function () use ($i) {
+                $procedure = Phake::mock(Procedure::class);
+                Phake::when($procedure)->fetchOne()->thenReturn($i * 2);
+                return $procedure;
             });
         }
         $result = $database->processBatch($batch);

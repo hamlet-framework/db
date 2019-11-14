@@ -3,7 +3,7 @@
 namespace Hamlet\Database;
 
 use Exception;
-use Hamlet\Database\Batches\Batch;
+use Hamlet\Database\Processing\BatchProcessor;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -93,17 +93,17 @@ abstract class Database implements LoggerAwareInterface
 
     /**
      * @template Q
-     * @param Batch $batch
+     * @param BatchProcessor $batch
      * @psalm-param Batch<Q> $batch
      * @return array
      * @psalm-suppress MissingClosureReturnType
      */
-    public function processBatch(Batch $batch): array
+    public function processBatch(BatchProcessor $batch): array
     {
         $callables = [];
-        foreach ($batch->items() as $key => $item) {
-            $callables[$key] = function (Session $session) use ($batch, $item) {
-                return $batch->apply($item($session));
+        foreach ($batch->procedures() as $key => $procedure) {
+            $callables[$key] = function (Session $session) use ($batch, $procedure) {
+                return $batch->apply($procedure($session));
             };
         }
         return $this->withSessions($callables);
