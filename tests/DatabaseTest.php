@@ -8,6 +8,7 @@ use Hamlet\Database\Processing\BatchProcessor;
 use Phake;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Comparator\Factory;
 use RuntimeException;
 use stdClass;
 

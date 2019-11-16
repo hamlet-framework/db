@@ -90,4 +90,14 @@ abstract class Database implements LoggerAwareInterface
         }
         return $result;
     }
+
+    /**
+     * @param array $generators
+     * @psalm-param array<callable(Session):Procedure> $generators
+     * @return MultiProcedureContext
+     */
+    public function prepareMultiple(array $generators)
+    {
+        return new MultiProcedureContext($this, $generators);
+    }
 }
