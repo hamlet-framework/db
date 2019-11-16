@@ -98,6 +98,6 @@ abstract class Database implements LoggerAwareInterface
      */
     public function prepareMultiple(array $generators)
     {
-        return new MultiProcedureContext($this, $generators);
+        return new SimpleMultiProcedureContext($this, $generators);
     }
 }
