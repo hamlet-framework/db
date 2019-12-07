@@ -13,10 +13,8 @@ trait QueryExpanderTrait
 {
     /**
      * @param string $query
-     * @param array $parameters
-     * @psalm-param array<array{0:string,1:string|float|int|array<string>|array<float>|array<int>|null}> $parameters
-     * @return array
-     * @psalm-return array{0:string,1:array<array{0:string,1:int|string|float|null}>}
+     * @param array<array{0:string,1:string|float|int|array<string>|array<float>|array<int>|null}> $parameters
+     * @return array{0:string,1:array<array{0:string,1:int|string|float|null}>}
      */
     private function unwrapQueryAndParameters(string $query, array $parameters): array
     {

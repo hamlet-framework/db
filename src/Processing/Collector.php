@@ -13,8 +13,7 @@ use Iterator;
 class Collector
 {
     /**
-     * @var Generator
-     * @psalm-var Generator<I,T,mixed,void>
+     * @var Generator<I,T,mixed,void>
      */
     protected $records;
 
@@ -34,14 +33,12 @@ class Collector
     protected $valueType;
 
     /**
-     * @var callable|null
-     * @psalm-var (callable(mixed,mixed):bool)|null
+     * @var (callable(mixed,mixed):bool)|null
      */
     protected $assertion;
 
     /**
-     * @param Generator $records
-     * @psalm-param Generator<I,T,mixed,void> $records
+     * @param Generator<I,T,mixed,void> $records
      * @param bool $streamingMode
      */
     public function __construct(Generator $records, bool $streamingMode)
@@ -51,8 +48,7 @@ class Collector
     }
 
     /**
-     * @return array
-     * @psalm-return array<I,T>
+     * @return array<I,T>
      */
     public function collectAll(): array
     {
@@ -65,8 +61,7 @@ class Collector
     }
 
     /**
-     * @return mixed
-     * @psalm-return T|null
+     * @return T|null
      */
     public function collectHead()
     {
@@ -78,8 +73,7 @@ class Collector
     }
 
     /**
-     * @return Iterator
-     * @psalm-return Iterator<I,T>
+     * @return Iterator<I,T>
      */
     public function iterator(): Iterator
     {
@@ -92,13 +86,9 @@ class Collector
     /**
      * @template K as array-key
      * @template V
-     * @param Type $keyType
-     * @psalm-param Type<K> $keyType
-     * @param Type $valueType
-     * @psalm-param Type<V> $valueType
-     * @return Collector
-     * @psalm-return Collector<K,V>
-     * @psalm-suppress MixedTypeCoercion
+     * @param Type<K> $keyType
+     * @param Type<V> $valueType
+     * @return Collector<K,V>
      */
     public function assertType(Type $keyType, Type $valueType)
     {
@@ -108,8 +98,7 @@ class Collector
     }
 
     /**
-     * @param callable $callback
-     * @psalm-param callable(mixed,mixed):bool $callback
+     * @param callable(mixed,mixed):bool $callback
      * @return self
      */
     public function assertForEach(callable $callback): self
@@ -119,10 +108,8 @@ class Collector
     }
 
     /**
-     * @param mixed $key
-     * @psalm-param I $key
-     * @param mixed $value
-     * @psalm-param T $value
+     * @param I $key
+     * @param T $value
      * @return void
      */
     private function validate($key, $value)

@@ -13,33 +13,28 @@ use function is_subclass_of;
 trait EntityFactoryTrait
 {
     /**
-     * @var array
-     * @psalm-var array<string,\ReflectionClass>
+     * @var array<string,\ReflectionClass>
      */
     private static $types = [];
 
     /**
-     * @var array
-     * @psalm-var array<string,array<string,\ReflectionProperty>>
+     * @var array<string,array<string,\ReflectionProperty>>
      */
     private static $properties = [];
 
     /**
-     * @var array
-     * @psalm-var array<string,bool>
+     * @var array<string,bool>
      */
     private static $entitySubclasses = [];
 
     /**
-     * @var array
-     * @psalm-var array<string,\ReflectionMethod>
+     * @var array<string,\ReflectionMethod>
      */
     private static $typeResolvers = [];
 
     /**
      * @param mixed $item
      * @return bool
-     * @psalm-suppress MixedAssignment
      * @psalm-assert !null $item
      */
     private function isNull($item): bool
@@ -59,12 +54,9 @@ trait EntityFactoryTrait
     /**
      * @template S as object
      * @template T as int|string|float|bool|null|array|object
-     * @param string $typeName
-     * @psalm-param class-string<S> $typeName
-     * @param array<string,mixed> $data
-     * @psalm-param array<string,T> $data
-     * @return mixed
-     * @psalm-return S|null
+     * @param class-string<S> $typeName
+     * @param array<string,T> $data
+     * @return S|null
      */
     private function instantiate(string $typeName, array $data)
     {
@@ -90,12 +82,9 @@ trait EntityFactoryTrait
     /**
      * @template S as object
      * @template T as int|string|float|bool|null|array|object
-     * @param string $typeName
-     * @psalm-param class-string<S> $typeName
-     * @param array<string,mixed> $data
-     * @psalm-param array<string,T> $data
-     * @return mixed
-     * @psalm-return S
+     * @param class-string<S> $typeName
+     * @param array<string,T> $data
+     * @return S
      */
     private function instantiateEntity(string $typeName, array $data)
     {
@@ -107,9 +96,6 @@ trait EntityFactoryTrait
         list($type, $properties, $typeResolver) = $this->getType($typeName);
 
         if ($typeResolver) {
-            /**
-             * @psalm-suppress MixedAssignment
-             */
             $resolvedTypeName = $typeResolver->invoke(null, $data);
             if (!is_string($resolvedTypeName)) {
                 throw new RuntimeException('Resolved type name must be a string, provided ' . var_export($resolvedTypeName, true));
@@ -155,10 +141,8 @@ trait EntityFactoryTrait
 
     /**
      * @template S
-     * @param string $typeName
-     * @psalm-param class-string<S> $typeName
-     * @return array
-     * @psalm-return array{0:\ReflectionClass,1:array<string,\ReflectionProperty>,2:\ReflectionMethod|null}
+     * @param class-string<S> $typeName
+     * @return array{0:\ReflectionClass,1:array<string,\ReflectionProperty>,2:\ReflectionMethod|null}
      */
     private function getType(string $typeName): array
     {

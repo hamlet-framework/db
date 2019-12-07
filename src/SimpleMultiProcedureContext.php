@@ -10,15 +10,13 @@ class SimpleMultiProcedureContext implements MultiProcedureContext
     private $database;
 
     /**
-     * @var callable[]
-     * @psalm-var array<callable(Session):Procedure>
+     * @var array<callable(Session):Procedure>
      */
     private $generators;
 
     /**
      * @param Database $database
-     * @param callable[] $generators
-     * @psalm-var array<callable(Session):Procedure> $generators
+     * @param array<callable(Session):Procedure> $generators
      */
     public function __construct(Database $database, array $generators)
     {
@@ -28,11 +26,8 @@ class SimpleMultiProcedureContext implements MultiProcedureContext
 
     /**
      * @template T
-     * @param callable $processor
-     * @psalm-param callable(Procedure):T $processor
-     * @return array
-     * @psalm-return array<T>
-     * @psalm-suppress MissingClosureReturnType
+     * @param callable(Procedure):T $processor
+     * @return array<T>
      */
     public function forEach(callable $processor)
     {

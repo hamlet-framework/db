@@ -20,8 +20,7 @@ abstract class Procedure implements LoggerAwareInterface
     protected $logger;
 
     /**
-     * @var array
-     * @psalm-var array<array{0:string,1:string|float|int|array<string>|array<float>|array<int>|null}>
+     * @var array<array{0:string,1:string|float|int|array<string>|array<float>|array<int>|null}>
      */
     protected $parameters = [];
 
@@ -157,14 +156,12 @@ abstract class Procedure implements LoggerAwareInterface
     }
 
     /**
-     * @return Generator
-     * @psalm-return Generator<int,array<string,int|string|float|null>,mixed,void>
+     * @return Generator<int,array<string,int|string|float|null>,mixed,void>
      */
     abstract protected function fetch(): Generator;
 
     /**
-     * @return array|null
-     * @psalm-return array<string,int|string|float|null>|null
+     * @return array<string,int|string|float|null>|null
      */
     public function fetchOne()
     {
@@ -175,8 +172,7 @@ abstract class Procedure implements LoggerAwareInterface
     }
 
     /**
-     * @return array
-     * @psalm-return array<int,array<string,int|string|float|null>>
+     * @return array<int,array<string,int|string|float|null>>
      */
     public function fetchAll(): array
     {
@@ -184,15 +180,13 @@ abstract class Procedure implements LoggerAwareInterface
     }
 
     /**
-     * @return Selector
-     * @psalm-return Selector<int,string,int|string|float|null>
+     * @return Selector<int,string,int|string|float|null>
      */
     public function processOne(): Selector
     {
         $generator =
             /**
-             * @return Generator
-             * @psalm-return Generator<int,array<string,int|string|float|null>,mixed,void>
+             * @return Generator<int,array<string,int|string|float|null>,mixed,void>
              */
             function () {
                 foreach ($this->fetch() as $key => $record) {
@@ -204,8 +198,7 @@ abstract class Procedure implements LoggerAwareInterface
     }
 
     /**
-     * @return Selector
-     * @psalm-return Selector<int,string,int|string|float|null>
+     * @return Selector<int,string,int|string|float|null>
      */
     public function processAll(): Selector
     {
@@ -213,8 +206,7 @@ abstract class Procedure implements LoggerAwareInterface
     }
 
     /**
-     * @return Selector
-     * @psalm-return Selector<int,string,int|string|float|null>
+     * @return Selector<int,string,int|string|float|null>
      */
     public function stream(): Selector
     {

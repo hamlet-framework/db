@@ -16,24 +16,20 @@ use function substr;
 trait SplitterTrait
 {
     /**
-     * @var array
-     * @psalm-var array<string,array<string,string>>
+     * @var array<int|string,array<string,string>>
      */
     private static $prefixCache = [];
 
     /**
      * @param string $field
-     * @return callable
-     * @psalm-return callable(array<K,V>):array{0:V,1:array<K,V>}
+     * @return callable(array<K,V>):array{0:V,1:array<K,V>}
      */
     private function selectValueSplitter(string $field): callable
     {
         return
             /**
-             * @param array $record
-             * @psalm-param array<K,V> $record
-             * @return array
-             * @psalm-return array{0:V,1:array<K,V>}
+             * @param array<K,V> $record
+             * @return array{0:V,1:array<K,V>}
              */
             function (array $record) use ($field): array {
                 if (!array_key_exists($field, $record)) {
@@ -48,8 +44,7 @@ trait SplitterTrait
     /**
      * @param string $field
      * @param string ...$fields
-     * @return callable
-     * @psalm-return callable(array<K,V>):array{0:array<K,V>,1:array<K,V>}
+     * @return callable(array<K,V>):array{0:array<K,V>,1:array<K,V>}
      */
     private function selectFieldsSplitter(string $field, string ...$fields): callable
     {
@@ -77,17 +72,14 @@ trait SplitterTrait
     /**
      * @param string $keyField
      * @param string $valueField
-     * @return callable
-     * @psalm-return callable(array<K,V>):array{0:array<V>,1:array<K,V>}
+     * @return callable(array<K,V>):array{0:array<V>,1:array<K,V>}
      */
     private function mapSplitter(string $keyField, string $valueField): callable
     {
         return
             /**
-             * @param array $record
-             * @psalm-param array<K,V> $record
-             * @return array
-             * @psalm-return array{0:array<V>,1:array<K,V>}
+             * @param array<K,V> $record
+             * @return array{0:array<V>,1:array<K,V>}
              */
             function (array $record) use ($keyField, $valueField): array {
                 if (!array_key_exists($keyField, $record)) {
@@ -95,7 +87,6 @@ trait SplitterTrait
                 }
                 $key = $record[$keyField];
                 if (!is_int($key)) {
-                    /** @psalm-suppress InvalidCast */
                     $key = (string) $key;
                 }
                 if (!array_key_exists($valueField, $record)) {
@@ -112,18 +103,15 @@ trait SplitterTrait
 
     /**
      * @param string $prefix
-     * @return callable
-     * @psalm-return callable(array<K,V>):array{0:array<string,V>,1:array<K,V>}
+     * @return callable(array<K,V>):array{0:array<string,V>,1:array<K,V>}
      */
     private function selectByPrefixSplitter(string $prefix): callable
     {
         $length = strlen($prefix);
         return
             /**
-             * @param array $record
-             * @psalm-param array<K,V> $record
-             * @return array
-             * @psalm-return array{0:array<string,V>,1:array<K,V>}
+             * @param array<K,V> $record
+             * @return array{0:array<string,V>,1:array<K,V>}
              */
             function (array $record) use ($prefix, $length): array {
                 $item = [];
@@ -149,8 +137,7 @@ trait SplitterTrait
     }
 
     /**
-     * @return callable
-     * @psalm-return callable(array<K,V>):array{0:array<K,V>,1:array<K,V>}
+     * @return callable(array<K,V>):array{0:array<K,V>,1:array<K,V>}
      */
     private function selectAllSplitter(): callable
     {
@@ -169,18 +156,15 @@ trait SplitterTrait
     /**
      * @param string $field
      * @param string ...$fields
-     * @return callable
-     * @psalm-return callable(array<K,V>):array{0:V|null,1:array<K,V>}
+     * @return callable(array<K,V>):array{0:V|null,1:array<K,V>}
      */
     private function coalesceSplitter(string $field, string ...$fields): callable
     {
         array_unshift($fields, $field);
         return
             /**
-             * @param array $record
-             * @psalm-param array<K,V> $record
-             * @return array
-             * @psalm-return array{0:V|null,1:array<K,V>}
+             * @param array<K,V> $record
+             * @return array{0:V|null,1:array<K,V>}
              */
             function (array $record) use ($fields): array {
                 $item = null;

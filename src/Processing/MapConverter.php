@@ -4,6 +4,7 @@ namespace Hamlet\Database\Processing;
 
 use Generator;
 use Hamlet\Database\Traits\EntityFactoryTrait;
+use RuntimeException;
 use function assert;
 use function is_null;
 use function md5;
@@ -29,12 +30,8 @@ class MapConverter extends Converter
     use EntityFactoryTrait;
 
     /**
-     * @param       Generator                          $records
-     * @psalm-param Generator<I,array<K,V>,mixed,void> $records
-     *
-     * @param       callable                                                $splitter
-     * @psalm-param callable(array<K,V>):array{0:array<K1,V1>,1:array<K,V>} $splitter
-     *
+     * @param Generator<I,array<K,V>,mixed,void> $records
+     * @param callable(array<K,V>):array{0:array<K1,V1>,1:array<K,V>} $splitter
      * @param bool $streamingMode
      */
     public function __construct(Generator $records, callable $splitter, bool $streamingMode)
@@ -43,17 +40,13 @@ class MapConverter extends Converter
     }
 
     /**
-     * @return Collector
-     * @psalm-return Collector<K1, V1>
+     * @return Collector<K1,V1>
      */
     public function flatten(): Collector
     {
         $generator =
             /**
-             * @return Generator
-             * @psalm-return Generator<K1, V1, mixed, void>
-             * @psalm-suppress MixedTypeCoercion
-             * @psalm-suppress MixedOperand
+             * @return Generator<K1,V1,mixed,void>
              */
             function () {
                 $map = [];
@@ -67,8 +60,7 @@ class MapConverter extends Converter
 
     /**
      * @param string $name
-     * @return Selector
-     * @psalm-return Selector<I, K|string, array<K1, V1>|V>
+     * @return Selector<I,K|string,array<K1,V1>|V>
      */
     public function flattenInto(string $name): Selector
     {
@@ -77,8 +69,7 @@ class MapConverter extends Converter
 
     /**
      * @param string $name
-     * @return Generator
-     * @psalm-return Generator<I, array<K|string, V|array<K1, V1>>, mixed, void>
+     * @return Generator<I,array<K|string,V|array<K1,V1>>,mixed,void>
      */
     private function flattenRecordsInto(string $name): Generator
     {
@@ -90,13 +81,9 @@ class MapConverter extends Converter
     }
 
     /**
-     * @param       Generator               $generator
-     * @psalm-param Generator<I,array<K,V>> $generator
-     *
-     * @param       string                  $name
-     *
-     * @return       Generator
-     * @psalm-return Generator<I, array<K|string, V|array<K1,V1>>, mixed, void>
+     * @param Generator<I,array<K,V>> $generator
+     * @param string $name
+     * @return Generator<I,array<K|string,V|array<K1,V1>>,mixed,void>
      */
     private function flattenRecordsStreamingMode(Generator $generator, string $name): Generator
     {
@@ -123,7 +110,6 @@ class MapConverter extends Converter
                 if ($currentGroup === null) {
                     $currentGroup = [];
                 }
-                /** @psalm-suppress MixedOperand */
                 $currentGroup += $item;
             }
             $lastRecord = $record;
@@ -136,13 +122,9 @@ class MapConverter extends Converter
     }
 
     /**
-     * @param       Generator               $generator
-     * @psalm-param Generator<I,array<K,V>> $generator
-     *
+     * @param Generator<I,array<K,V>> $generator
      * @param string $name
-     *
-     * @return       Generator
-     * @psalm-return Generator<I,array<K|string,V|array<K1,V1>>,mixed,void>
+     * @return Generator<I,array<K|string,V|array<K1,V1>>,mixed,void>
      */
     private function flattenRecordsBatchMode(Generator $generator, string $name): Generator
     {
@@ -161,7 +143,9 @@ class MapConverter extends Converter
                 $maps[$key] = [];
             }
             if (!$this->isNull($item)) {
-                /** @psalm-suppress MixedOperand */
+                if (!is_array($item)) {
+                    throw new RuntimeException('Array expected, given ' . print_r($item, true));
+                }
                 $maps[$key] += $item;
             }
             $records[$key] = $record;
