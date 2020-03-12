@@ -3,8 +3,8 @@
 namespace Hamlet\Database\Processing;
 
 use Generator;
+use Hamlet\Database\DatabaseException;
 use Hamlet\Database\Traits\EntityFactoryTrait;
-use RuntimeException;
 use function assert;
 use function is_null;
 use function md5;
@@ -51,7 +51,11 @@ class MapConverter extends Converter
             function () {
                 $map = [];
                 foreach ($this->flattenRecordsInto(':property:') as $record) {
-                    $map += $record[':property:'];
+                    $item = $record[':property:'];
+                    if (!is_array($item)) {
+                        throw new DatabaseException('Expected array, given: ' . var_export($item, true));
+                    }
+                    $map += $item;
                 }
                 yield from $map;
             };
@@ -87,9 +91,15 @@ class MapConverter extends Converter
      */
     private function flattenRecordsStreamingMode(Generator $generator, string $name): Generator
     {
+        /** @var array<K1,V1>|null $currentGroup */
         $currentGroup = null;
+
+        /** @var array<K,V>|null $lastRecord */
         $lastRecord = null;
+
+        /** @var I|null $lastKey */
         $lastKey = null;
+
         foreach ($generator as $key => $record) {
             list($item, $record) = ($this->splitter)($record);
             if ($lastRecord !== $record) {
@@ -109,6 +119,9 @@ class MapConverter extends Converter
             if (!$this->isNull($item)) {
                 if ($currentGroup === null) {
                     $currentGroup = [];
+                }
+                if (!is_array($item)) {
+                    throw new DatabaseException('Expected array, given: ' . var_export($item, true));
                 }
                 $currentGroup += $item;
             }
@@ -144,7 +157,7 @@ class MapConverter extends Converter
             }
             if (!$this->isNull($item)) {
                 if (!is_array($item)) {
-                    throw new RuntimeException('Array expected, given ' . print_r($item, true));
+                    throw new DatabaseException('Expected array, given ' . var_export($item, true));
                 }
                 $maps[$key] += $item;
             }

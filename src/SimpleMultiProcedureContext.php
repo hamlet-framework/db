@@ -33,9 +33,14 @@ class SimpleMultiProcedureContext implements MultiProcedureContext
     {
         $callables = [];
         foreach ($this->generators as $generator) {
-            $callables[] = function (Session $session) use ($generator, $processor) {
-                return $processor($generator($session));
-            };
+            $callables[] =
+                /**
+                 * @param Session $session
+                 * @return T
+                 */
+                function (Session $session) use ($generator, $processor) {
+                    return $processor($generator($session));
+                };
         }
         return $this->database->withSessions($callables);
     }

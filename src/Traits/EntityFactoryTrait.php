@@ -2,11 +2,12 @@
 
 namespace Hamlet\Database\Traits;
 
+use Hamlet\Database\DatabaseException;
 use Hamlet\Database\Entity;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
-use RuntimeException;
+use function Hamlet\Cast\_string;
 use function is_array;
 use function is_subclass_of;
 
@@ -40,6 +41,9 @@ trait EntityFactoryTrait
     private function isNull($item): bool
     {
         if (is_array($item)) {
+            /**
+             * @psalm-suppress MixedAssignment
+             */
             foreach ($item as &$value) {
                 if (!$this->isNull($value)) {
                     return false;
@@ -53,9 +57,8 @@ trait EntityFactoryTrait
 
     /**
      * @template S as object
-     * @template T as int|string|float|bool|null|array|object
      * @param class-string<S> $typeName
-     * @param array<string,T> $data
+     * @param array<string,mixed> $data
      * @return S|null
      */
     private function instantiate(string $typeName, array $data)
@@ -73,6 +76,9 @@ trait EntityFactoryTrait
         }
 
         $object = new $typeName();
+        /**
+         * @psalm-suppress MixedAssignment
+         */
         foreach ($data as $key => &$value) {
             $object->$key = $value;
         }
@@ -81,7 +87,7 @@ trait EntityFactoryTrait
 
     /**
      * @template S as object
-     * @template T as int|string|float|bool|null|array|object
+     * @template T as mixed
      * @param class-string<S> $typeName
      * @param array<string,T> $data
      * @return S
@@ -96,12 +102,9 @@ trait EntityFactoryTrait
         list($type, $properties, $typeResolver) = $this->getType($typeName);
 
         if ($typeResolver) {
-            $resolvedTypeName = $typeResolver->invoke(null, $data);
-            if (!is_string($resolvedTypeName)) {
-                throw new RuntimeException('Resolved type name must be a string, provided ' . var_export($resolvedTypeName, true));
-            }
+            $resolvedTypeName = _string()->assert($typeResolver->invoke(null, $data));
             if (!class_exists($resolvedTypeName)) {
-                throw new RuntimeException('Cannot find class ' . $resolvedTypeName);
+                throw new DatabaseException('Cannot find class ' . $resolvedTypeName);
             }
             /**
              * @var ReflectionClass $resolvedType
@@ -109,7 +112,7 @@ trait EntityFactoryTrait
              */
             list($resolvedType, $resolvedProperties) = $this->getType($resolvedTypeName);
             if ($resolvedType !== $type && !$resolvedType->isSubclassOf($type)) {
-                throw new RuntimeException('Resolved type ' . $resolvedType->getName() . ' is not subclass of ' . $type->getName());
+                throw new DatabaseException('Resolved type ' . $resolvedType->getName() . ' is not subclass of ' . $type->getName());
             }
             $type = $resolvedType;
             $properties = $resolvedProperties;
@@ -120,7 +123,7 @@ trait EntityFactoryTrait
         $propertiesSet = [];
         foreach ($data as $name => &$value) {
             if (!isset($properties[$name])) {
-                throw new RuntimeException('Property ' . $name . ' not found in class ' . $typeName);
+                throw new DatabaseException('Property ' . $name . ' not found in class ' . $typeName);
             }
             $propertiesSet[$name] = 1;
             $property = $properties[$name];
@@ -132,7 +135,7 @@ trait EntityFactoryTrait
          */
         foreach ($properties as $name => &$_) {
             if (!isset($propertiesSet[$name])) {
-                throw new RuntimeException('Property ' . $typeName . '::' . $name . ' not set in ' . json_encode($data));
+                throw new DatabaseException('Property ' . $typeName . '::' . $name . ' not set in ' . json_encode($data));
             }
         }
 
@@ -152,7 +155,7 @@ trait EntityFactoryTrait
                 $type = new ReflectionClass($typeName);
                 self::$types[$typeName] = $type;
             } catch (ReflectionException $e) {
-                throw new RuntimeException('Cannot load reflection information for ' . $typeName, 1, $e);
+                throw new DatabaseException('Cannot load reflection information for ' . $typeName, 1, $e);
             }
 
             foreach ($type->getProperties() as &$property) {
@@ -167,10 +170,10 @@ trait EntityFactoryTrait
                 try {
                     $method = $type->getMethod('__resolveType');
                 } catch (ReflectionException $e) {
-                    throw new RuntimeException('Cannot access __resolveType method', 0, $e);
+                    throw new DatabaseException('Cannot access __resolveType method', 0, $e);
                 }
                 if (!$method->isStatic() || !$method->isPublic()) {
-                    throw new RuntimeException('Method __resolveType must be public static method');
+                    throw new DatabaseException('Method __resolveType must be public static method');
                 }
                 assert($method instanceof ReflectionMethod);
                 self::$typeResolvers[$typeName] = $method;

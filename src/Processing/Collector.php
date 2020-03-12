@@ -84,13 +84,15 @@ class Collector
     }
 
     /**
-     * @template K as array-key
+     * @template K as int|string
      * @template V
      * @param Type<K> $keyType
      * @param Type<V> $valueType
-     * @return Collector<K,V>
+     * @return self<K,V>
+     * @psalm-suppress InvalidReturnType
+     * @psalm-suppress InvalidReturnStatement
      */
-    public function assertType(Type $keyType, Type $valueType)
+    public function assertType(Type $keyType, Type $valueType): self
     {
         $this->keyType = $keyType;
         $this->valueType = $valueType;
@@ -99,7 +101,7 @@ class Collector
 
     /**
      * @param callable(mixed,mixed):bool $callback
-     * @return self
+     * @return self<I,T>
      */
     public function assertForEach(callable $callback): self
     {

@@ -18,7 +18,7 @@
   "require": {
     "php": "^7",
     "ext-json": "@stable",
-    "hamlet-framework/type": "@stable",
+    "hamlet-framework/type": "dev-master",
     "psr/log": "@stable"
   },
   "require-dev": {
@@ -27,7 +27,7 @@
     "phake/phake": "@stable",
     "phpunit/phpunit": "^6 || ^7",
     "squizlabs/php_codesniffer": "@stable",
-    "vimeo/psalm": "@stable"
+    "vimeo/psalm": "dev-master"
   },
   "autoload": {
     "psr-4": {

@@ -10,17 +10,14 @@ use Hamlet\Database\Traits\SplitterTrait;
  * @template K as array-key
  * @template V
  *
- * @extends Collector<I, array<K, V>>
+ * @extends Collector<I,array<K, V>>
  */
 class Selector extends Collector
 {
-    /**
-     * @use SplitterTrait<K,V>
-     */
     use SplitterTrait;
 
     /**
-     * @param Generator<I, array<K, V>, mixed, void> $records
+     * @param Generator<I,array<K,V>,mixed,void> $records
      * @param bool $streamingMode
      */
     public function __construct(Generator $records, bool $streamingMode)
@@ -30,7 +27,7 @@ class Selector extends Collector
 
     /**
      * @param string $field
-     * @return Converter<I, K, V, V>
+     * @return Converter<I,K,V,V>
      */
     public function selectValue(string $field): Converter
     {
@@ -85,13 +82,13 @@ class Selector extends Collector
     }
 
     /**
-     * @return Collector<I,V>
+     * @return Collector<int|string,V>
      */
     public function coalesceAll(): Collector
     {
         $generator =
             /**
-             * @return Generator<I,V,mixed,void>
+             * @return Generator<int|string,V,mixed,void>
              */
             function (): Generator {
                 foreach ($this->records as $key => $record) {

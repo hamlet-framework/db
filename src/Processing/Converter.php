@@ -5,6 +5,9 @@ namespace Hamlet\Database\Processing;
 use Generator;
 use Hamlet\Database\Traits\EntityFactoryTrait;
 use function assert;
+use function Hamlet\Cast\_map;
+use function Hamlet\Cast\_mixed;
+use function Hamlet\Cast\_string;
 use function is_null;
 use function md5;
 use function serialize;
@@ -111,14 +114,19 @@ class Converter
     }
 
     /**
-     * @param Generator<I, array<K, V>, mixed, void> $generator
+     * @param Generator<I,array<K,V>,mixed,void> $generator
      * @param string $name
-     * @return Generator<I,array<K|string,V|array<int,E>>,mixed,void>
+     * @return Generator<I,array<K|string,V|list<E>>,mixed,void>
      */
     private function groupRecordsBatchMode(Generator $generator, string $name): Generator
     {
+        /** @var array<I,array<K,V>> $records */
         $records = [];
+
+        /** @var array<I,list<E>> $groups */
         $groups = [];
+
+        /** @var array<string,I> $keys */
         $keys = [];
 
         foreach ($generator as $key => $record) {
@@ -145,9 +153,9 @@ class Converter
     }
 
     /**
-     * @param Generator<I, array<K, V> ,mixed, void> $generator
+     * @param Generator<I,array<K,V>,mixed,void> $generator
      * @param string $name
-     * @return Generator<I,non-empty-array<K|string,V|list<E>>,mixed,void>
+     * @return Generator<I,array<K|string,V|list<E>>,mixed,void>
      */
     private function groupRecordsStreamingMode(Generator $generator, string $name): Generator
     {
@@ -163,7 +171,7 @@ class Converter
                     }
                     $lastRecord[$name] = $currentGroup;
                     if (!$this->isNull($lastRecord)) {
-                        assert(!is_null($lastKey));
+                        assert(!is_null($lastKey) && !is_null($lastRecord));
                         yield $lastKey => $lastRecord;
                     }
                 }
@@ -177,7 +185,7 @@ class Converter
         }
         $lastRecord[$name] = $currentGroup;
         if (!$this->isNull($lastRecord)) {
-            assert(!is_null($lastKey));
+            assert(!is_null($lastKey) && !is_null($lastRecord));
             yield $lastKey => $lastRecord;
         }
     }
@@ -192,6 +200,7 @@ class Converter
         $generator =
             /**
              * @return Generator<I,Q,mixed,void>
+             * @psalm-suppress InvalidReturnType
              */
             function () use ($typeName) {
                 foreach ($this->castRecordsInto($typeName, ':property:') as $key => $record) {
@@ -205,7 +214,7 @@ class Converter
      * @template Q
      * @param class-string<Q> $typeName
      * @param string $name
-     * @return Selector<I,K|string,V|Q>
+     * @return Selector<I,K|string,V|Q|null>
      */
     public function castInto(string $typeName, string $name): Selector
     {
@@ -216,13 +225,13 @@ class Converter
      * @template Q
      * @param class-string<Q> $typeName
      * @param string $name
-     * @return Generator<I,array<K|string,V|Q>,mixed,void>
+     * @return Generator<I,array<K|string,V|Q|null>,mixed,void>
      */
     private function castRecordsInto(string $typeName, string $name): Generator
     {
         foreach ($this->records as $key => $record) {
             list($item, $record) = ($this->splitter)($record);
-            $instance = $this->instantiate($typeName, $item);
+            $instance = $this->instantiate($typeName, _map(_string(), _mixed())->assert($item));
             $record[$name] = $instance;
             yield $key => $record;
         }

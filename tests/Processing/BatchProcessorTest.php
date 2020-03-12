@@ -2,15 +2,13 @@
 
 namespace Hamlet\Database\Processing;
 
-use function Hamlet\Cast\_class;
-use function Hamlet\Cast\_int;
-use function Hamlet\Cast\_intersection;
-use function Hamlet\Cast\_map;
-use function Hamlet\Cast\_property;
-use function Hamlet\Cast\_string;
+use Hamlet\Cast\Type;
 use Hamlet\Database\Entity;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
+use function Hamlet\Cast\_class;
+use function Hamlet\Cast\_int;
+use function Hamlet\Cast\_string;
 
 class Phone
 {
@@ -272,10 +270,7 @@ class BatchProcessorTest extends TestCase
             ->selectValue('phone')->groupInto('phones')
             ->assertType(
                 _int(),
-                _intersection(
-                    _property('name', true, _string()),
-                    _property('phones', true, _map(_int(), _string()))
-                )
+                Type::of('array{name:string,phones:array<int,string>}')
             )
             ->collectAll();
 
