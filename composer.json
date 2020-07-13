@@ -18,16 +18,16 @@
   "require": {
     "php": "^7",
     "ext-json": "@stable",
-    "hamlet-framework/type": "dev-master",
+    "hamlet-framework/type": "@stable",
     "psr/log": "@stable"
   },
   "require-dev": {
-    "jakub-onderka/php-parallel-lint": "@stable",
     "monolog/monolog": "@stable",
     "phake/phake": "@stable",
+    "php-parallel-lint/php-parallel-lint": "@stable",
     "phpunit/phpunit": "^6 || ^7",
     "squizlabs/php_codesniffer": "@stable",
-    "vimeo/psalm": "dev-master"
+    "vimeo/psalm": "@stable"
   },
   "autoload": {
     "psr-4": {
