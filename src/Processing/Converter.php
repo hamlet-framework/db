@@ -1,8 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Hamlet\Database\Processing;
 
 use Generator;
+use Hamlet\Cast\ClassType;
 use Hamlet\Database\Traits\EntityFactoryTrait;
 use function assert;
 use function Hamlet\Cast\_map;
@@ -229,9 +230,12 @@ class Converter
      */
     private function castRecordsInto(string $typeName, string $name): Generator
     {
+        $type = new ClassType($typeName);
         foreach ($this->records as $key => $record) {
             list($item, $record) = ($this->splitter)($record);
             $instance = $this->instantiate($typeName, _map(_string(), _mixed())->assert($item));
+            // @todo fix and start using hamlet-framework/type to convert properties
+            // $instance = $type->cast($item);
             $record[$name] = $instance;
             yield $key => $record;
         }

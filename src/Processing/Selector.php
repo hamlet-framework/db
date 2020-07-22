@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Hamlet\Database\Processing;
 
@@ -28,6 +28,8 @@ class Selector extends Collector
     /**
      * @param string $field
      * @return Converter<I,K,V,V>
+     * @psalm-suppress MixedArgumentTypeCoercion
+     * @psalm-suppress InvalidScalarArgument
      */
     public function selectValue(string $field): Converter
     {
@@ -38,6 +40,10 @@ class Selector extends Collector
      * @param string $field
      * @param string ...$fields
      * @return Converter<I,K,V,array<K,V>>
+     * @psalm-suppress MixedArgumentTypeCoercion
+     * @psalm-suppress InvalidScalarArgument
+     * @psalm-suppress InvalidReturnStatement
+     * @psalm-suppress InvalidReturnType
      */
     public function selectFields(string $field, string ...$fields): Converter
     {
@@ -48,6 +54,8 @@ class Selector extends Collector
      * @param string $keyField
      * @param string $valueField
      * @return MapConverter<I,K,V,array-key,V>
+     * @psalm-suppress MixedArgumentTypeCoercion
+     * @psalm-suppress InvalidScalarArgument
      */
     public function map(string $keyField, string $valueField): MapConverter
     {
@@ -57,6 +65,8 @@ class Selector extends Collector
     /**
      * @param string $prefix
      * @return Converter<I,K,V,array<string,V>>
+     * @psalm-suppress MixedArgumentTypeCoercion
+     * @psalm-suppress InvalidScalarArgument
      */
     public function selectByPrefix(string $prefix): Converter
     {
@@ -65,6 +75,8 @@ class Selector extends Collector
 
     /**
      * @return Converter<I,K,V,array<K,V>>
+     * @psalm-suppress MixedArgumentTypeCoercion
+     * @psalm-suppress InvalidScalarArgument
      */
     public function selectAll(): Converter
     {
@@ -75,6 +87,8 @@ class Selector extends Collector
      * @param string $field
      * @param string ...$fields
      * @return Converter<I,K,V,V|null>
+     * @psalm-suppress MixedArgumentTypeCoercion
+     * @psalm-suppress InvalidScalarArgument
      */
     public function coalesce(string $field, string ...$fields): Converter
     {

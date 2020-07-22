@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Hamlet\Database\Processing;
 
@@ -47,6 +47,7 @@ class MapConverter extends Converter
         $generator =
             /**
              * @return Generator<K1,V1,mixed,void>
+             * @psalm-suppress InvalidReturnType
              */
             function () {
                 $map = [];
@@ -88,6 +89,7 @@ class MapConverter extends Converter
      * @param Generator<I,array<K,V>> $generator
      * @param string $name
      * @return Generator<I,array<K|string,V|array<K1,V1>>,mixed,void>
+     * @psalm-suppress MixedReturnTypeCoercion
      */
     private function flattenRecordsStreamingMode(Generator $generator, string $name): Generator
     {
@@ -138,6 +140,7 @@ class MapConverter extends Converter
      * @param Generator<I,array<K,V>> $generator
      * @param string $name
      * @return Generator<I,array<K|string,V|array<K1,V1>>,mixed,void>
+     * @psalm-suppress MixedReturnTypeCoercion
      */
     private function flattenRecordsBatchMode(Generator $generator, string $name): Generator
     {
