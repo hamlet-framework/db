@@ -4,7 +4,6 @@
 
 namespace Hamlet\Database;
 
-use Hamlet\Database\Processing\BatchProcessor;
 use Phake;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
