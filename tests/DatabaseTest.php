@@ -4,10 +4,9 @@
 
 namespace Hamlet\Database;
 
+use Exception;
 use Phake;
-use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 use stdClass;
 
 class DatabaseTest extends TestCase
@@ -30,14 +29,53 @@ class DatabaseTest extends TestCase
                 $session->withTransaction(function () {
                 });
                 $session->withTransaction(function () {
-                    throw new RuntimeException();
+                    throw new DatabaseException('Something happened');
                 });
             });
         } catch (DatabaseException $exception) {
+            $this->assertEquals('Something happened', $exception->getMessage());
             $exceptionThrown = true;
         }
 
-        Assert::assertTrue($exceptionThrown);
+        $this->assertTrue($exceptionThrown);
+
+        Phake::inOrder(
+            Phake::verify($pool)->pop(),
+            Phake::verify($session, Phake::times(3))->startTransaction($connection),
+            Phake::verify($session, Phake::times(2))->commit($connection),
+            Phake::verify($session, Phake::times(1))->rollback($connection),
+            Phake::verify($pool)->push($connection)
+        );
+    }
+
+    public function testExceptionGetsWrappedAndTransactionRolledBackAndTheConnectionIsReturnedIntoPool()
+    {
+        $connection = new stdClass;
+        $pool = Phake::mock(SimpleConnectionPool::class);
+        Phake::when($pool)->pop()->thenReturn($connection);
+
+        $session = Phake::partialMock(Session::class, $connection);
+        $database = Phake::partialMock(Database::class, $pool);
+        Phake::when($database)->createSession($connection)->thenReturn($session);
+
+        $exceptionThrown = false;
+        try {
+            $database->withSession(function ($session) {
+                $session->withTransaction(function () {
+                });
+                $session->withTransaction(function () {
+                });
+                $session->withTransaction(function () {
+                    throw new Exception('Unexpected');
+                });
+            });
+        } catch (DatabaseException $exception) {
+            $this->assertEquals('Failed to execute statement', $exception->getMessage());
+            $this->assertEquals('Unexpected', $exception->getPrevious()->getMessage());
+            $exceptionThrown = true;
+        }
+
+        $this->assertTrue($exceptionThrown);
 
         Phake::inOrder(
             Phake::verify($pool)->pop(),
@@ -95,6 +133,6 @@ class DatabaseTest extends TestCase
             });
         });
 
-        Assert::assertEquals(42, $result);
+        $this->assertEquals(42, $result);
     }
 }

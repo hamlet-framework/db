@@ -3,7 +3,6 @@
 namespace Hamlet\Database;
 
 use Exception;
-use Hamlet\Database\Processing\BatchProcessor;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -57,8 +56,7 @@ abstract class Database implements LoggerAwareInterface
         $handle = $this->pool->pop();
         $session = $this->createSession($handle);
         try {
-            $result = $callable($session);
-            return $result;
+            return $callable($session);
         } catch (DatabaseException $e) {
             throw $e;
         } catch (Exception $e) {
