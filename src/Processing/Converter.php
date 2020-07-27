@@ -4,11 +4,10 @@ namespace Hamlet\Database\Processing;
 
 use Generator;
 use Hamlet\Cast\ClassType;
+use Hamlet\Database\Resolvers\EntityResolver;
 use Hamlet\Database\Traits\EntityFactoryTrait;
+use RuntimeException;
 use function assert;
-use function Hamlet\Cast\_map;
-use function Hamlet\Cast\_mixed;
-use function Hamlet\Cast\_string;
 use function is_null;
 use function md5;
 use function serialize;
@@ -34,7 +33,7 @@ class Converter
     protected $records;
 
     /**
-     * @var callable(array<K, V>):array{0:E,1:array<K,V>}
+     * @var callable(array<K,V>):array{0:E,1:array<K,V>}
      */
     protected $splitter;
 
@@ -231,11 +230,13 @@ class Converter
     private function castRecordsInto(string $typeName, string $name): Generator
     {
         $type = new ClassType($typeName);
+        $entityResolver = new EntityResolver;
         foreach ($this->records as $key => $record) {
             list($item, $record) = ($this->splitter)($record);
-            $instance = $this->instantiate($typeName, _map(_string(), _mixed())->assert($item));
-            // @todo fix and start using hamlet-framework/type to convert properties
-            // $instance = $type->cast($item);
+            $instance = $type->resolveAndCast($item, $entityResolver);
+            if (!($instance instanceof $typeName)) {
+                throw new RuntimeException('Cannot ' . print_r($item, true) .  ' to ' . $typeName);
+            }
             $record[$name] = $instance;
             yield $key => $record;
         }

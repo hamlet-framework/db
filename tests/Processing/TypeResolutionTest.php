@@ -2,9 +2,7 @@
 
 namespace Hamlet\Database\Processing;
 
-
 use Hamlet\Database\Entity;
-use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
@@ -91,27 +89,23 @@ class TypeResolutionTest extends TestCase
             ->selectAll()->cast(AbstractUser::class)
             ->collectAll();
 
-        Assert::assertInstanceOf(User::class, $collection[0]);
-        Assert::assertInstanceOf(User::class, $collection[1]);
-        Assert::assertInstanceOf(AnonymousUser::class, $collection[2]);
-        Assert::assertInstanceOf(User::class, $collection[3]);
+        $this->assertInstanceOf(User::class, $collection[0]);
+        $this->assertInstanceOf(User::class, $collection[1]);
+        $this->assertInstanceOf(AnonymousUser::class, $collection[2]);
+        $this->assertInstanceOf(User::class, $collection[3]);
     }
 
-    /**
-     * @expectedException RuntimeException
-     */
-    public function testTypeResolverThrowsException()
+    public function testTypeResolverThrowsExceptionOnFailedCastExpectations()
     {
+        $this->expectException(RuntimeException::class);
         (new Selector($this->users(), false))
             ->selectAll()->cast(SuperAnonymousUser::class)
             ->collectAll();
     }
 
-    /**
-     * @expectedException RuntimeException
-     */
     public function testTypeResolverThrowsExceptionOfUnrelatedClass()
     {
+        $this->expectException(RuntimeException::class);
         (new Selector($this->users(), false))
             ->selectAll()->cast(RandomClass::class)
             ->collectAll();
