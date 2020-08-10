@@ -13,7 +13,8 @@ use Psr\Log\NullLogger;
 abstract class Session implements LoggerAwareInterface
 {
     /**
-     * @var T
+     * @var mixed
+     * @psalm-var T
      */
     protected $handle;
 
@@ -28,7 +29,8 @@ abstract class Session implements LoggerAwareInterface
     protected $logger;
 
     /**
-     * @param T $handle
+     * @param mixed $handle
+     * @psalm-param T $handle
      */
     protected function __construct($handle)
     {
@@ -50,8 +52,10 @@ abstract class Session implements LoggerAwareInterface
 
     /**
      * @template Q
-     * @param callable():Q $callable
-     * @return Q
+     * @param callable $callable
+     * @psalm-param callable():Q $callable
+     * @return mixed
+     * @psalm-return Q
      */
     public function withTransaction(callable $callable)
     {
@@ -82,19 +86,22 @@ abstract class Session implements LoggerAwareInterface
     }
 
     /**
-     * @param T $connection
+     * @param mixed $connection
+     * @psalm-param T $connection
      * @return void
      */
     abstract protected function startTransaction($connection);
 
     /**
-     * @param T $connection
+     * @param mixed $connection
+     * @psalm-param T $connection
      * @return void
      */
     abstract protected function commit($connection);
 
     /**
-     * @param T $connection
+     * @param mixed $connection
+     * @psalm-param T $connection
      * @return void
      */
     abstract protected function rollback($connection);

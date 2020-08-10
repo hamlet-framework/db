@@ -13,7 +13,8 @@ use Psr\Log\NullLogger;
 abstract class Database implements LoggerAwareInterface
 {
     /**
-     * @var ConnectionPool<T>
+     * @var ConnectionPool
+     * @psalm-var ConnectionPool<T>
      */
     protected $pool;
 
@@ -23,7 +24,8 @@ abstract class Database implements LoggerAwareInterface
     protected $logger;
 
     /**
-     * @param ConnectionPool<T> $pool
+     * @param ConnectionPool $pool
+     * @psalm-param ConnectionPool<T> $pool
      */
     protected function __construct(ConnectionPool $pool)
     {
@@ -41,15 +43,19 @@ abstract class Database implements LoggerAwareInterface
     }
 
     /**
-     * @param T $handle
-     * @return Session<T>
+     * @param mixed $handle
+     * @psalm-param T $handle
+     * @return Session
+     * @psalm-return Session<T>
      */
     abstract protected function createSession($handle): Session;
 
     /**
      * @template Q
-     * @param callable(Session):Q $callable
-     * @return Q
+     * @param callable $callable
+     * @psalm-param callable(Session):Q $callable
+     * @return mixed
+     * @psalm-return Q
      */
     public function withSession(callable $callable)
     {
@@ -69,8 +75,10 @@ abstract class Database implements LoggerAwareInterface
     /**
      * @template K
      * @template Q
-     * @param array<K,callable(Session):Q> $callables
-     * @return array<K,Q>
+     * @param callable[] $callables
+     * @psalm-param array<K,callable(Session):Q> $callables
+     * @return array
+     * @psalm-return array<K,Q>
      */
     public function withSessions(array $callables)
     {
@@ -82,7 +90,8 @@ abstract class Database implements LoggerAwareInterface
     }
 
     /**
-     * @param array<callable(Session):Procedure> $generators
+     * @param callable[] $generators
+     * @psalm-param array<callable(Session):Procedure> $generators
      * @return MultiProcedureContext
      */
     public function prepareMultiple(array $generators)

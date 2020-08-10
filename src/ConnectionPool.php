@@ -23,7 +23,8 @@ interface ConnectionPool extends LoggerAwareInterface
     public function pop();
 
     /**
-     * @param T $connection
+     * @param mixed $connection
+     * @psalm-param T $connection
      * @return void
      */
     public function push($connection);
