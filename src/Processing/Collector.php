@@ -13,7 +13,8 @@ use Iterator;
 class Collector
 {
     /**
-     * @var Generator<I,T,mixed,void>
+     * @var Generator
+     * @psalm-var Generator<I,T,mixed,void>
      */
     protected $records;
 
@@ -38,7 +39,8 @@ class Collector
     protected $assertion;
 
     /**
-     * @param Generator<I,T,mixed,void> $records
+     * @param Generator $records
+     * @psalm-param Generator<I,T,mixed,void> $records
      * @param bool $streamingMode
      */
     public function __construct(Generator $records, bool $streamingMode)
@@ -48,7 +50,8 @@ class Collector
     }
 
     /**
-     * @return array<I,T>
+     * @return array
+     * @psalm-return array<I,T>
      */
     public function collectAll(): array
     {
@@ -61,7 +64,8 @@ class Collector
     }
 
     /**
-     * @return T|null
+     * @return mixed
+     * @psalm-return T|null
      */
     public function collectHead()
     {
@@ -73,7 +77,8 @@ class Collector
     }
 
     /**
-     * @return Iterator<I,T>
+     * @return Iterator
+     * @psalm-return Iterator<I,T>
      */
     public function iterator(): Iterator
     {
@@ -86,11 +91,14 @@ class Collector
     /**
      * @template K as int|string
      * @template V
-     * @param Type<K> $keyType
-     * @param Type<V> $valueType
-     * @return self<K,V>
-     * @psalm-suppress InvalidReturnType
+     * @param Type $keyType
+     * @psalm-param Type<K> $keyType
+     * @param Type $valueType
+     * @psalm-param Type<V> $valueType
+     * @return self
+     * @psalm-return self<K,V>
      * @psalm-suppress InvalidReturnStatement
+     * @psalm-suppress InvalidReturnType
      */
     public function assertType(Type $keyType, Type $valueType): self
     {
@@ -100,8 +108,10 @@ class Collector
     }
 
     /**
-     * @param callable(mixed,mixed):bool $callback
-     * @return self<I,T>
+     * @param callable $callback
+     * @psalm-param callable(mixed,mixed):bool $callback
+     * @return self
+     * @psalm-return self<I,T>
      */
     public function assertForEach(callable $callback): self
     {
@@ -110,8 +120,10 @@ class Collector
     }
 
     /**
-     * @param I $key
-     * @param T $value
+     * @param mixed $key
+     * @psalm-param I $key
+     * @param mixed $value
+     * @psalm-param T $value
      * @return void
      */
     private function validate($key, $value)
