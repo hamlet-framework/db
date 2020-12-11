@@ -75,6 +75,8 @@ class MapConverter extends Converter
     /**
      * @param string $name
      * @return Generator<I,array<K|string,V|array<K1,V1>>,mixed,void>
+     * @psalm-suppress InvalidReturnType
+     * @psalm-suppress InvalidReturnStatement
      */
     private function flattenRecordsInto(string $name): Generator
     {

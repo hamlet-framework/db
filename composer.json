@@ -16,7 +16,7 @@
     "sort-packages": true
   },
   "require": {
-    "php": "^7",
+    "php": "^7 || ^8",
     "ext-json": "@stable",
     "hamlet-framework/type": ">= 0.2.0",
     "psr/log": "@stable"
@@ -25,7 +25,7 @@
     "monolog/monolog": "@stable",
     "phake/phake": "@stable",
     "php-parallel-lint/php-parallel-lint": "@stable",
-    "phpunit/phpunit": "^6 || ^7",
+    "phpunit/phpunit": "^6 || ^7 || ^8",
     "squizlabs/php_codesniffer": "@stable",
     "vimeo/psalm": "@stable"
   },

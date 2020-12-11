@@ -103,6 +103,8 @@ class Converter
     /**
      * @param string $name
      * @return Generator<I,array<K|string,V|array<E>>,mixed,void>
+     * @psalm-suppress InvalidReturnType
+     * @psalm-suppress InvalidReturnStatement
      */
     private function groupRecordsInto(string $name): Generator
     {
