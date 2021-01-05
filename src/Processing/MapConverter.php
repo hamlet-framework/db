@@ -41,6 +41,8 @@ class MapConverter extends Converter
 
     /**
      * @return Collector<K1,V1>
+     * @psalm-suppress MixedOperand
+     * @psalm-suppress MixedReturnTypeCoercion
      */
     public function flatten(): Collector
     {
@@ -92,6 +94,7 @@ class MapConverter extends Converter
      * @param string $name
      * @return Generator<I,array<K|string,V|array<K1,V1>>,mixed,void>
      * @psalm-suppress MixedReturnTypeCoercion
+     * @psalm-suppress MixedOperand
      */
     private function flattenRecordsStreamingMode(Generator $generator, string $name): Generator
     {
@@ -143,6 +146,7 @@ class MapConverter extends Converter
      * @param string $name
      * @return Generator<I,array<K|string,V|array<K1,V1>>,mixed,void>
      * @psalm-suppress MixedReturnTypeCoercion
+     * @psalm-suppress MixedOperand
      */
     private function flattenRecordsBatchMode(Generator $generator, string $name): Generator
     {
