@@ -3,6 +3,7 @@
 namespace Hamlet\Database\Resolvers;
 
 use Hamlet\Database\DatabaseException;
+use ReflectionException;
 use ReflectionMethod;
 
 /**
@@ -23,8 +24,7 @@ class MethodBasedTypeResolver implements TypeResolver
     private $reflectionMethod;
 
     /**
-     * @param string $parentType
-     * @psalm-param class-string<T> $parentType
+     * @param class-string<T> $parentType
      * @param ReflectionMethod $reflectionMethod
      */
     public function __construct(string $parentType, ReflectionMethod $reflectionMethod)
@@ -35,8 +35,8 @@ class MethodBasedTypeResolver implements TypeResolver
 
     /**
      * @param mixed $value
-     * @return string
-     * @psalm-return class-string<T>
+     * @return class-string<T>
+     * @throws ReflectionException
      */
     public function resolveType($value): string
     {

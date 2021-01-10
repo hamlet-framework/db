@@ -9,14 +9,12 @@ namespace Hamlet\Database\Resolvers;
 class ConstantTypeResolver implements TypeResolver
 {
     /**
-     * @var string
-     * @psalm-var class-string<T>
+     * @var class-string<T>
      */
     private $type;
 
     /**
-     * @param string $type
-     * @psalm-param class-string<T> $type
+     * @param class-string<T> $type
      */
     public function __construct(string $type)
     {
@@ -25,8 +23,7 @@ class ConstantTypeResolver implements TypeResolver
 
     /**
      * @param mixed $value
-     * @return string
-     * @psalm-return class-string<T>
+     * @return class-string<T>
      */
     public function resolveType($value): string
     {

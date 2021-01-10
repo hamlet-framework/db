@@ -10,17 +10,14 @@ use RuntimeException;
 class EntityResolver extends DefaultResolver
 {
     /**
-     * @var TypeResolver[]
-     * @psalm-var array<class-string,TypeResolver>
+     * @var array<class-string,TypeResolver>
      */
     private static $typeResolvers = [];
 
     /**
      * @template T
-     * @param string $type
-     * @psalm-param class-string<T> $type
-     * @return TypeResolver
-     * @psalm-return TypeResolver<T>
+     * @param class-string<T> $type
+     * @return TypeResolver<T>
      * @throws ReflectionException
      * @psalm-suppress MixedReturnTypeCoercion
      */
@@ -49,11 +46,9 @@ class EntityResolver extends DefaultResolver
 
     /**
      * @template T as object
-     * @param string $type
-     * @psalm-param class-string<T> $type
+     * @param class-string<T> $type
      * @param mixed $value
-     * @return SubTypeResolution
-     * @psalm-return SubTypeResolution<T>
+     * @return SubTypeResolution<T>
      * @throws ReflectionException
      */
     public function resolveSubType(string $type, $value): SubTypeResolution

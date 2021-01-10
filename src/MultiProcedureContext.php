@@ -6,10 +6,8 @@ interface MultiProcedureContext
 {
     /**
      * @template T
-     * @param callable $processor
-     * @psalm-param callable(Procedure):T $processor
-     * @return array
-     * @psalm-return array<T>
+     * @param callable(Procedure):T $processor
+     * @return array<T>
      */
-    public function forEach(callable $processor);
+    public function forEach(callable $processor): array;
 }

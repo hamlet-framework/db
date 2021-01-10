@@ -29,7 +29,7 @@ class SimpleMultiProcedureContext implements MultiProcedureContext
      * @param callable(Procedure):T $processor
      * @return array<T>
      */
-    public function forEach(callable $processor)
+    public function forEach(callable $processor): array
     {
         $callables = [];
         foreach ($this->generators as $generator) {

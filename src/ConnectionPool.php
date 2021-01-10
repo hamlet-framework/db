@@ -17,14 +17,12 @@ interface ConnectionPool extends LoggerAwareInterface
     public function setLogger(LoggerInterface $logger);
 
     /**
-     * @return mixed
-     * @psalm-return T
+     * @return T
      */
     public function pop();
 
     /**
-     * @param mixed $connection
-     * @psalm-param T $connection
+     * @param T $connection
      * @return void
      */
     public function push($connection);

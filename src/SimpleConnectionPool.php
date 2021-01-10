@@ -13,8 +13,7 @@ use SplQueue;
 class SimpleConnectionPool implements ConnectionPool
 {
     /**
-     * @var callable
-     * @psalm-var callable():T
+     * @var callable():T
      */
     private $connector;
 
@@ -24,8 +23,7 @@ class SimpleConnectionPool implements ConnectionPool
     private $logger;
 
     /**
-     * @var SplQueue
-     * @psalm-var SplQueue<T>
+     * @var SplQueue<T>
      */
     private $pool;
 
@@ -35,8 +33,7 @@ class SimpleConnectionPool implements ConnectionPool
     private $size;
 
     /**
-     * @param callable $connector
-     * @psalm-param callable():T $connector
+     * @param callable():T $connector
      */
     public function __construct(callable $connector)
     {
@@ -57,8 +54,7 @@ class SimpleConnectionPool implements ConnectionPool
     }
 
     /**
-     * @return mixed
-     * @psalm-return T
+     * @return T
      */
     public function pop()
     {
@@ -74,8 +70,7 @@ class SimpleConnectionPool implements ConnectionPool
     }
 
     /**
-     * @param mixed $connection
-     * @psalm-param T $connection
+     * @param T $connection
      * @return void
      */
     public function push($connection)

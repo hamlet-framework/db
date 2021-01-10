@@ -13,8 +13,7 @@ use Psr\Log\NullLogger;
 abstract class Database implements LoggerAwareInterface
 {
     /**
-     * @var ConnectionPool
-     * @psalm-var ConnectionPool<T>
+     * @var ConnectionPool<T>
      */
     protected $pool;
 
@@ -24,8 +23,7 @@ abstract class Database implements LoggerAwareInterface
     protected $logger;
 
     /**
-     * @param ConnectionPool $pool
-     * @psalm-param ConnectionPool<T> $pool
+     * @param ConnectionPool<T> $pool
      */
     protected function __construct(ConnectionPool $pool)
     {
@@ -43,19 +41,15 @@ abstract class Database implements LoggerAwareInterface
     }
 
     /**
-     * @param mixed $handle
-     * @psalm-param T $handle
-     * @return Session
-     * @psalm-return Session<T>
+     * @param T $handle
+     * @return Session<T>
      */
     abstract protected function createSession($handle): Session;
 
     /**
      * @template Q
-     * @param callable $callable
-     * @psalm-param callable(Session):Q $callable
-     * @return mixed
-     * @psalm-return Q
+     * @param callable(Session):Q $callable
+     * @return Q
      */
     public function withSession(callable $callable)
     {
@@ -75,12 +69,12 @@ abstract class Database implements LoggerAwareInterface
     /**
      * @template K
      * @template Q
-     * @param callable[] $callables
-     * @psalm-param array<K,callable(Session):Q> $callables
-     * @return array
-     * @psalm-return array<K,Q>
+     * @param array<K,callable(Session):Q> $callables
+     * @return array<K,Q>
+     * @psalm-suppress MismatchingDocblockReturnType
+     * @psalm-suppress MixedInferredReturnType
      */
-    public function withSessions(array $callables)
+    public function withSessions(array $callables): array
     {
         $result = [];
         foreach ($callables as $key => $callable) {
@@ -90,8 +84,7 @@ abstract class Database implements LoggerAwareInterface
     }
 
     /**
-     * @param callable[] $generators
-     * @psalm-param array<callable(Session):Procedure> $generators
+     * @param array<callable(Session):Procedure> $generators
      * @return MultiProcedureContext
      */
     public function prepareMultiple(array $generators)
