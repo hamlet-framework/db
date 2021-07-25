@@ -5,10 +5,8 @@ namespace Hamlet\Database\Traits;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
 
-class SplitterTraitTest extends TestCase
+class SplitterTraitTest
 {
-    use SplitterTrait;
-
     public function testSelectValueSplitter()
     {
         $splitter = $this->selectValueSplitter('firstName');

@@ -3,14 +3,14 @@
 namespace Hamlet\Database\Processing;
 
 use Generator;
-use Hamlet\Cast\ClassType;
-use Hamlet\Database\Resolvers\EntityResolver;
+use Hamlet\Database\Processing\Merge\Cast;
+use Hamlet\Database\Processing\Merge\CastInto;
+use Hamlet\Database\Processing\Merge\GroupBatched;
+use Hamlet\Database\Processing\Merge\GroupIntoBatched;
+use Hamlet\Database\Processing\Merge\GroupIntoStreamed;
+use Hamlet\Database\Processing\Merge\GroupStreamed;
+use Hamlet\Database\Processing\Merge\Name;
 use Hamlet\Database\Traits\EntityFactoryTrait;
-use RuntimeException;
-use function assert;
-use function is_null;
-use function md5;
-use function serialize;
 
 /**
  * I - Index type of all records
@@ -60,18 +60,8 @@ class Converter
      */
     public function name(string $name): Selector
     {
-        $generator =
-            /**
-             * @return Generator<I,array<K|string,V|E>,mixed,void>
-             */
-            function () use ($name) {
-                foreach ($this->records as $key => $record) {
-                    list($item, $record) = ($this->splitter)($record);
-                    $record[$name] = $item;
-                    yield $key => $record;
-                }
-            };
-        return new Selector($generator(), $this->streamingMode);
+        $generator = (new Name($name))($this->records, $this->splitter);
+        return new Selector($generator, $this->streamingMode);
     }
 
     /**
@@ -79,16 +69,12 @@ class Converter
      */
     public function group(): Collector
     {
-        $generator =
-            /**
-             * @return Generator<I,array<I,E>|V,mixed,void>
-             */
-            function () {
-                foreach ($this->groupRecordsInto(':property:') as $key => $record) {
-                    yield $key => $record[':property:'];
-                }
-            };
-        return new Collector($generator(), $this->streamingMode);
+        if ($this->streamingMode) {
+            $generator = (new GroupStreamed)($this->records, $this->splitter);
+        } else {
+            $generator = (new GroupBatched)($this->records, $this->splitter);
+        }
+        return new Collector($generator, $this->streamingMode);
     }
 
     /**
@@ -103,8 +89,6 @@ class Converter
     /**
      * @param string $name
      * @return Generator<I,array<K|string,V|array<E>>,mixed,void>
-     * @psalm-suppress InvalidReturnType
-     * @psalm-suppress InvalidReturnStatement
      */
     private function groupRecordsInto(string $name): Generator
     {
@@ -122,36 +106,7 @@ class Converter
      */
     private function groupRecordsBatchMode(Generator $generator, string $name): Generator
     {
-        /** @var array<I,array<K,V>> $records */
-        $records = [];
-
-        /** @var array<I,list<E>> $groups */
-        $groups = [];
-
-        /** @var array<string,I> $keys */
-        $keys = [];
-
-        foreach ($generator as $key => $record) {
-            list($item, $record) = ($this->splitter)($record);
-            $hash = md5(serialize($record));
-            if (!isset($keys[$hash])) {
-                $keys[$hash] = $key;
-            } else {
-                $key = $keys[$hash];
-            }
-            if (!isset($groups[$key])) {
-                $groups[$key] = [];
-            }
-            if (!$this->isNull($item)) {
-                $groups[$key][] = $item;
-            }
-            $records[$key] = $record;
-        }
-
-        foreach ($records as $key => &$record) {
-            $record[$name] = $groups[$key];
-            yield $key => $record;
-        }
+        return (new GroupIntoBatched($name))($generator, $this->splitter);
     }
 
     /**
@@ -161,35 +116,7 @@ class Converter
      */
     private function groupRecordsStreamingMode(Generator $generator, string $name): Generator
     {
-        $currentGroup = null;
-        $lastRecord = null;
-        $lastKey = null;
-        foreach ($generator as $key => $record) {
-            list($item, $record) = ($this->splitter)($record);
-            if ($lastRecord !== $record) {
-                if (!$this->isNull($currentGroup)) {
-                    if ($lastRecord === null) {
-                        $lastRecord = [];
-                    }
-                    $lastRecord[$name] = $currentGroup;
-                    if (!$this->isNull($lastRecord)) {
-                        assert(!is_null($lastKey) && !is_null($lastRecord));
-                        yield $lastKey => $lastRecord;
-                    }
-                }
-                $lastKey = $key;
-                $currentGroup = [];
-            }
-            if (!$this->isNull($item)) {
-                $currentGroup[] = $item;
-            }
-            $lastRecord = $record;
-        }
-        $lastRecord[$name] = $currentGroup;
-        if (!$this->isNull($lastRecord)) {
-            assert(!is_null($lastKey) && !is_null($lastRecord));
-            yield $lastKey => $lastRecord;
-        }
+        return (new GroupIntoStreamed($name))($generator, $this->splitter);
     }
 
     /**
@@ -199,17 +126,8 @@ class Converter
      */
     public function cast(string $typeName): Collector
     {
-        $generator =
-            /**
-             * @return Generator<I,Q,mixed,void>
-             * @psalm-suppress InvalidReturnType
-             */
-            function () use ($typeName) {
-                foreach ($this->castRecordsInto($typeName, ':property:') as $key => $record) {
-                    yield $key => $record[':property:'];
-                }
-            };
-        return new Collector($generator(), $this->streamingMode);
+        $generator = (new Cast($typeName))($this->records, $this->splitter);
+        return new Collector($generator, $this->streamingMode);
     }
 
     /**
@@ -220,27 +138,7 @@ class Converter
      */
     public function castInto(string $typeName, string $name): Selector
     {
-        return new Selector($this->castRecordsInto($typeName, $name), $this->streamingMode);
-    }
-
-    /**
-     * @template Q
-     * @param class-string<Q> $typeName
-     * @param string $name
-     * @return Generator<I,array<K|string,V|Q|null>,mixed,void>
-     */
-    private function castRecordsInto(string $typeName, string $name): Generator
-    {
-        $type = new ClassType($typeName);
-        $entityResolver = new EntityResolver;
-        foreach ($this->records as $key => $record) {
-            list($item, $record) = ($this->splitter)($record);
-            $instance = $type->resolveAndCast($item, $entityResolver);
-            if (!($instance instanceof $typeName)) {
-                throw new RuntimeException('Cannot ' . print_r($item, true) .  ' to ' . $typeName);
-            }
-            $record[$name] = $instance;
-            yield $key => $record;
-        }
+        $generator = (new CastInto($typeName, $name))($this->records, $this->splitter);
+        return new Selector($generator, $this->streamingMode);
     }
 }

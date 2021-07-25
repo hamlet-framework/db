@@ -71,8 +71,6 @@ abstract class Database implements LoggerAwareInterface
      * @template Q
      * @param array<K,callable(Session):Q> $callables
      * @return array<K,Q>
-     * @psalm-suppress MismatchingDocblockReturnType
-     * @psalm-suppress MixedInferredReturnType
      */
     public function withSessions(array $callables): array
     {
@@ -81,14 +79,5 @@ abstract class Database implements LoggerAwareInterface
             $result[$key] = $this->withSession($callable);
         }
         return $result;
-    }
-
-    /**
-     * @param array<callable(Session):Procedure> $generators
-     * @return MultiProcedureContext
-     */
-    public function prepareMultiple(array $generators)
-    {
-        return new SimpleMultiProcedureContext($this, $generators);
     }
 }

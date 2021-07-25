@@ -3,12 +3,11 @@
 namespace Hamlet\Database\Processing;
 
 use Generator;
-use Hamlet\Database\DatabaseException;
+use Hamlet\Database\Processing\Merge\FlattenBatched;
+use Hamlet\Database\Processing\Merge\FlattenIntoBatched;
+use Hamlet\Database\Processing\Merge\FlattenIntoStreamed;
+use Hamlet\Database\Processing\Merge\FlattenStreamed;
 use Hamlet\Database\Traits\EntityFactoryTrait;
-use function assert;
-use function is_null;
-use function md5;
-use function serialize;
 
 /**
  * I  - Index type of all records
@@ -41,28 +40,15 @@ class MapConverter extends Converter
 
     /**
      * @return Collector<K1,V1>
-     * @psalm-suppress MixedOperand
-     * @psalm-suppress MixedReturnTypeCoercion
      */
     public function flatten(): Collector
     {
-        $generator =
-            /**
-             * @return Generator<K1,V1,mixed,void>
-             * @psalm-suppress InvalidReturnType
-             */
-            function () {
-                $map = [];
-                foreach ($this->flattenRecordsInto(':property:') as $record) {
-                    $item = $record[':property:'];
-                    if (!is_array($item)) {
-                        throw new DatabaseException('Expected array, given: ' . var_export($item, true));
-                    }
-                    $map += $item;
-                }
-                yield from $map;
-            };
-        return new Collector($generator(), $this->streamingMode);
+        if ($this->streamingMode) {
+            $generator = (new FlattenStreamed)($this->records, $this->splitter);
+        } else {
+            $generator = (new FlattenBatched)($this->records, $this->splitter);
+        }
+        return new Collector($generator, $this->streamingMode);
     }
 
     /**
@@ -71,110 +57,11 @@ class MapConverter extends Converter
      */
     public function flattenInto(string $name): Selector
     {
-        return new Selector($this->flattenRecordsInto($name), $this->streamingMode);
-    }
-
-    /**
-     * @param string $name
-     * @return Generator<I,array<K|string,V|array<K1,V1>>,mixed,void>
-     * @psalm-suppress InvalidReturnType
-     * @psalm-suppress InvalidReturnStatement
-     */
-    private function flattenRecordsInto(string $name): Generator
-    {
         if ($this->streamingMode) {
-            return $this->flattenRecordsStreamingMode($this->records, $name);
+            $generator = (new FlattenIntoStreamed($name))($this->records, $this->splitter);
         } else {
-            return $this->flattenRecordsBatchMode($this->records, $name);
+            $generator = (new FlattenIntoBatched($name))($this->records, $this->splitter);
         }
-    }
-
-    /**
-     * @param Generator<I,array<K,V>> $generator
-     * @param string $name
-     * @return Generator<I,array<K|string,V|array<K1,V1>>,mixed,void>
-     * @psalm-suppress MixedReturnTypeCoercion
-     * @psalm-suppress MixedOperand
-     */
-    private function flattenRecordsStreamingMode(Generator $generator, string $name): Generator
-    {
-        /** @var array<K1,V1>|null $currentGroup */
-        $currentGroup = null;
-
-        /** @var array<K,V>|null $lastRecord */
-        $lastRecord = null;
-
-        /** @var I|null $lastKey */
-        $lastKey = null;
-
-        foreach ($generator as $key => $record) {
-            list($item, $record) = ($this->splitter)($record);
-            if ($lastRecord !== $record) {
-                if ($currentGroup !== null) {
-                    if ($lastRecord === null) {
-                        $lastRecord = [];
-                    }
-                    $lastRecord[$name] = $currentGroup;
-                    if (!$this->isNull($lastRecord)) {
-                        assert(!is_null($lastKey));
-                        yield $lastKey => $lastRecord;
-                    }
-                }
-                $lastKey = $key;
-                $currentGroup = [];
-            }
-            if (!$this->isNull($item)) {
-                if ($currentGroup === null) {
-                    $currentGroup = [];
-                }
-                if (!is_array($item)) {
-                    throw new DatabaseException('Expected array, given: ' . var_export($item, true));
-                }
-                $currentGroup += $item;
-            }
-            $lastRecord = $record;
-        }
-        $lastRecord[$name] = $currentGroup;
-        if (!$this->isNull($lastRecord)) {
-            assert(!is_null($lastKey));
-            yield $lastKey => $lastRecord;
-        }
-    }
-
-    /**
-     * @param Generator<I,array<K,V>> $generator
-     * @param string $name
-     * @return Generator<I,array<K|string,V|array<K1,V1>>,mixed,void>
-     * @psalm-suppress MixedReturnTypeCoercion
-     * @psalm-suppress MixedOperand
-     */
-    private function flattenRecordsBatchMode(Generator $generator, string $name): Generator
-    {
-        $records = [];
-        $maps = [];
-        $keys = [];
-        foreach ($generator as $key => $record) {
-            list($item, $record) = ($this->splitter)($record);
-            $hash = md5(serialize($record));
-            if (!isset($keys[$hash])) {
-                $keys[$hash] = $key;
-            } else {
-                $key = $keys[$hash];
-            }
-            if (!isset($maps[$key])) {
-                $maps[$key] = [];
-            }
-            if (!$this->isNull($item)) {
-                if (!is_array($item)) {
-                    throw new DatabaseException('Expected array, given ' . var_export($item, true));
-                }
-                $maps[$key] += $item;
-            }
-            $records[$key] = $record;
-        }
-        foreach ($records as $key => &$record) {
-            $record[$name] = $maps[$key];
-            yield $key => $record;
-        }
+        return new Selector($generator, $this->streamingMode);
     }
 }

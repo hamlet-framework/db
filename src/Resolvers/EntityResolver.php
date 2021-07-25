@@ -19,7 +19,6 @@ class EntityResolver extends DefaultResolver
      * @param class-string<T> $type
      * @return TypeResolver<T>
      * @throws ReflectionException
-     * @psalm-suppress MixedReturnTypeCoercion
      */
     private function locateTypeResolver(string $type): TypeResolver
     {

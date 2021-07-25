@@ -3,7 +3,13 @@
 namespace Hamlet\Database\Processing;
 
 use Generator;
-use Hamlet\Database\Traits\SplitterTrait;
+use Hamlet\Database\Processing\Merge\CoalesceAll;
+use Hamlet\Database\Processing\Split\Coalesce;
+use Hamlet\Database\Processing\Split\Map;
+use Hamlet\Database\Processing\Split\SelectAll;
+use Hamlet\Database\Processing\Split\SelectByPrefix;
+use Hamlet\Database\Processing\Split\SelectFields;
+use Hamlet\Database\Processing\Split\SelectValue;
 
 /**
  * @template I as array-key
@@ -14,8 +20,6 @@ use Hamlet\Database\Traits\SplitterTrait;
  */
 class Selector extends Collector
 {
-    use SplitterTrait;
-
     /**
      * @param Generator<I,array<K,V>,mixed,void> $records
      * @param bool $streamingMode
@@ -28,71 +32,65 @@ class Selector extends Collector
     /**
      * @param string $field
      * @return Converter<I,K,V,V>
-     * @psalm-suppress MixedArgumentTypeCoercion
-     * @psalm-suppress InvalidScalarArgument
      */
     public function selectValue(string $field): Converter
     {
-        return new Converter($this->records, $this->selectValueSplitter($field), $this->streamingMode);
+        $splitter = new SelectValue($field);
+        return new Converter($this->records, $splitter, $this->streamingMode);
     }
 
     /**
      * @param string $field
      * @param string ...$fields
      * @return Converter<I,K,V,array<K,V>>
-     * @psalm-suppress MixedArgumentTypeCoercion
-     * @psalm-suppress InvalidScalarArgument
-     * @psalm-suppress InvalidReturnStatement
-     * @psalm-suppress InvalidReturnType
      */
     public function selectFields(string $field, string ...$fields): Converter
     {
-        return new Converter($this->records, $this->selectFieldsSplitter($field, ...$fields), $this->streamingMode);
+        array_unshift($fields, $field);
+        $splitter = new SelectFields($fields);
+        return new Converter($this->records, $splitter, $this->streamingMode);
     }
 
     /**
      * @param string $keyField
      * @param string $valueField
      * @return MapConverter<I,K,V,array-key,V>
-     * @psalm-suppress MixedArgumentTypeCoercion
-     * @psalm-suppress InvalidScalarArgument
      */
     public function map(string $keyField, string $valueField): MapConverter
     {
-        return new MapConverter($this->records, $this->mapSplitter($keyField, $valueField), $this->streamingMode);
+        $splitter = new Map($keyField, $valueField);
+        return new MapConverter($this->records, $splitter, $this->streamingMode);
     }
 
     /**
      * @param string $prefix
      * @return Converter<I,K,V,array<string,V>>
-     * @psalm-suppress MixedArgumentTypeCoercion
-     * @psalm-suppress InvalidScalarArgument
      */
     public function selectByPrefix(string $prefix): Converter
     {
-        return new Converter($this->records, $this->selectByPrefixSplitter($prefix), $this->streamingMode);
+        $splitter = new SelectByPrefix($prefix);
+        return new Converter($this->records, $splitter, $this->streamingMode);
     }
 
     /**
      * @return Converter<I,K,V,array<K,V>>
-     * @psalm-suppress MixedArgumentTypeCoercion
-     * @psalm-suppress InvalidScalarArgument
      */
     public function selectAll(): Converter
     {
-        return new Converter($this->records, $this->selectAllSplitter(), $this->streamingMode);
+        $splitter = new SelectAll;
+        return new Converter($this->records, $splitter, $this->streamingMode);
     }
 
     /**
      * @param string $field
      * @param string ...$fields
      * @return Converter<I,K,V,V|null>
-     * @psalm-suppress MixedArgumentTypeCoercion
-     * @psalm-suppress InvalidScalarArgument
      */
     public function coalesce(string $field, string ...$fields): Converter
     {
-        return new Converter($this->records, $this->coalesceSplitter($field, ...$fields), $this->streamingMode);
+        array_unshift($fields, $field);
+        $splitter = new Coalesce($fields);
+        return new Converter($this->records, $splitter, $this->streamingMode);
     }
 
     /**
@@ -100,21 +98,7 @@ class Selector extends Collector
      */
     public function coalesceAll(): Collector
     {
-        $generator =
-            /**
-             * @return Generator<int|string,V,mixed,void>
-             */
-            function (): Generator {
-                foreach ($this->records as $key => $record) {
-                    foreach ($record as &$value) {
-                        if ($value !== null) {
-                            yield $key => $value;
-                            break;
-                        }
-                    }
-                }
-            };
-
-        return new Collector($generator(), $this->streamingMode);
+        $generator = (new CoalesceAll)($this->records);
+        return new Collector($generator, $this->streamingMode);
     }
 }

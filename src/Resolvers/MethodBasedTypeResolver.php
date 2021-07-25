@@ -13,8 +13,7 @@ use ReflectionMethod;
 class MethodBasedTypeResolver implements TypeResolver
 {
     /**
-     * @var string
-     * @psalm-var class-string<T>
+     * @var class-string<T>
      */
     private $parentType;
 
@@ -40,9 +39,6 @@ class MethodBasedTypeResolver implements TypeResolver
      */
     public function resolveType($value): string
     {
-        /**
-         * @psalm-suppress MixedAssignment
-         */
         $subType = $this->reflectionMethod->invoke(null, $value);
         if (!is_string($subType)) {
             throw new DatabaseException('Type resolver must return a string: ' . $this->reflectionMethod->getName());

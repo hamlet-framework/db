@@ -14,9 +14,6 @@ trait EntityFactoryTrait
     private function isNull($item): bool
     {
         if (is_array($item)) {
-            /**
-             * @psalm-suppress MixedAssignment
-             */
             foreach ($item as &$value) {
                 if (!$this->isNull($value)) {
                     return false;

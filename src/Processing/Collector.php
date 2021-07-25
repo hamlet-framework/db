@@ -89,8 +89,6 @@ class Collector
      * @param Type<K> $keyType
      * @param Type<V> $valueType
      * @return self<K,V>
-     * @psalm-suppress InvalidReturnStatement
-     * @psalm-suppress InvalidReturnType
      */
     public function assertType(Type $keyType, Type $valueType): self
     {
