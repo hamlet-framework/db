@@ -10,12 +10,12 @@ use Iterator;
  * @template I as array-key
  * @template T
  */
-class Collector
+class Collection
 {
     /**
-     * @var Generator<I,T,mixed,void>
+     * @var Generator<I,T>
      */
-    protected $records;
+    protected $source;
 
     /**
      * @var bool
@@ -25,25 +25,25 @@ class Collector
     /**
      * @var Type|null
      */
-    protected $keyType;
+    protected $keyType = null;
 
     /**
      * @var Type|null
      */
-    protected $valueType;
+    protected $valueType = null;
 
     /**
-     * @var (callable(mixed,mixed):bool)|null
+     * @var (callable(I,T):bool)|null
      */
-    protected $assertion;
+    protected $assertion = null;
 
     /**
-     * @param Generator<I,T,mixed,void> $records
+     * @param Generator<I,T> $records
      * @param bool $streamingMode
      */
     public function __construct(Generator $records, bool $streamingMode)
     {
-        $this->records = $records;
+        $this->source = $records;
         $this->streamingMode = $streamingMode;
     }
 
@@ -53,7 +53,7 @@ class Collector
     public function collectAll(): array
     {
         $result = [];
-        foreach ($this->records as $key => $value) {
+        foreach ($this->source as $key => $value) {
             $this->validate($key, $value);
             $result[$key] = $value;
         }
@@ -65,7 +65,7 @@ class Collector
      */
     public function collectHead()
     {
-        foreach ($this->records as $key => $value) {
+        foreach ($this->source as $key => $value) {
             $this->validate($key, $value);
             return $value;
         }
@@ -77,7 +77,7 @@ class Collector
      */
     public function iterator(): Iterator
     {
-        foreach ($this->records as $key => $value) {
+        foreach ($this->source as $key => $value) {
             $this->validate($key, $value);
             yield $key => $value;
         }
@@ -88,7 +88,8 @@ class Collector
      * @template V
      * @param Type<K> $keyType
      * @param Type<V> $valueType
-     * @return self<K,V>
+     * @return $this
+     * @psalm-assert Collection<K,V> $this
      */
     public function assertType(Type $keyType, Type $valueType): self
     {
@@ -98,7 +99,7 @@ class Collector
     }
 
     /**
-     * @param callable(mixed,mixed):bool $callback
+     * @param callable(I,T):bool $callback
      * @return self<I,T>
      */
     public function assertForEach(callable $callback): self
@@ -114,14 +115,10 @@ class Collector
      */
     private function validate($key, $value)
     {
-        if ($this->keyType) {
-            $this->keyType->assert($key);
-        }
-        if ($this->valueType) {
-            $this->valueType->assert($value);
-        }
-        if ($this->assertion) {
-            assert(($this->assertion)($key, $value));
-        }
+        assert(
+            ($this->keyType === null || $this->keyType->matches($key)) &&
+            ($this->valueType === null || $this->valueType->matches($value)) &&
+            ($this->assertion === null || ($this->assertion)($key, $value))
+        );
     }
 }

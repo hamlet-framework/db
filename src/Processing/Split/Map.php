@@ -25,8 +25,8 @@ class Map
     /**
      * @template K as array-key
      * @template V
-     * @param array<K,V|null> $record
-     * @return array{0:array<V>,1:array<K,V|null>}
+     * @param array<K,V> $record
+     * @return array{0:array<V>,1:array<K,V>}
      */
     public function __invoke(array $record): array
     {

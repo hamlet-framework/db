@@ -65,16 +65,16 @@ class Converter
     }
 
     /**
-     * @return Collector<I,array<I,E>|V>
+     * @return Collection<I,array<I,E>|V>
      */
-    public function group(): Collector
+    public function group(): Collection
     {
         if ($this->streamingMode) {
             $generator = (new GroupStreamed)($this->records, $this->splitter);
         } else {
             $generator = (new GroupBatched)($this->records, $this->splitter);
         }
-        return new Collector($generator, $this->streamingMode);
+        return new Collection($generator, $this->streamingMode);
     }
 
     /**
@@ -122,12 +122,12 @@ class Converter
     /**
      * @template Q
      * @param class-string<Q> $typeName
-     * @return Collector<I,Q>
+     * @return Collection<I,Q>
      */
-    public function cast(string $typeName): Collector
+    public function cast(string $typeName): Collection
     {
         $generator = (new Cast($typeName))($this->records, $this->splitter);
-        return new Collector($generator, $this->streamingMode);
+        return new Collection($generator, $this->streamingMode);
     }
 
     /**

@@ -167,9 +167,9 @@ class BatchProcessorTest extends TestCase
             ->selectValue('phone')->groupInto('phones')
             ->collectAll();
 
-        Assert::assertEquals(2, count($collection));
-        Assert::assertEquals('John', $collection[0]['name']);
-        Assert::assertEquals(2, count($collection[0]['phones']));
+        $this->assertCount(2, $collection);
+        $this->assertEquals('John', $collection[0]['name']);
+        $this->assertCount(2, $collection[0]['phones']);
     }
 
     public function testCollectToMap()
@@ -179,9 +179,31 @@ class BatchProcessorTest extends TestCase
             ->map('name', 'phones')->flatten()
             ->collectAll();
 
-        Assert::assertEquals(2, count($collection));
-        Assert::assertArrayHasKey('John', $collection);
-        Assert::assertArrayHasKey('Bill', $collection);
+        $this->assertCount(2, $collection);
+        $this->assertArrayHasKey('John', $collection);
+        $this->assertArrayHasKey('Bill', $collection);
+    }
+
+    public function testGroup()
+    {
+        $head = (new Selector($this->addresses(), $this->streamingMode()))
+            ->selectByPrefix('address_')->group()
+            ->collectHead();
+
+        $this->assertCount(2, $head);
+        $this->assertEquals('Pushkin Square', $head[1]['street']);
+    }
+
+    public function testSelectFieldsExplicitly()
+    {
+        $collection = (new Selector($this->addresses(), $this->streamingMode()))
+            ->selectFields('address_street', 'address_number')->groupInto('addresses')
+            ->map('name', 'addresses')->flatten()
+            ->collectAll();
+
+        $this->assertCount(2, $collection);
+        $this->assertArrayHasKey('John', $collection);
+        $this->assertEquals(1812, $collection['Anatoly'][0]['address_number']);
     }
 
     public function testPrefixExtractor()
@@ -191,9 +213,9 @@ class BatchProcessorTest extends TestCase
             ->map('name', 'addresses')->flatten()
             ->collectAll();
 
-        Assert::assertEquals(2, count($collection));
-        Assert::assertArrayHasKey('John', $collection);
-        Assert::assertEquals(1812, $collection['Anatoly'][0]['number']);
+        $this->assertCount(2, $collection);
+        $this->assertArrayHasKey('John', $collection);
+        $this->assertEquals(1812, $collection['Anatoly'][0]['number']);
     }
 
     public function testNestedGroups()
@@ -204,7 +226,7 @@ class BatchProcessorTest extends TestCase
             ->map('country', 'states')->flatten()
             ->collectAll();
 
-        Assert::assertEquals('Balakovo', $collection['Russia']['Saratovskaya Oblast'][0]);
+        $this->assertEquals('Balakovo', $collection['Russia']['Saratovskaya Oblast'][0]);
     }
 
     public function testCollectTypedList()
@@ -213,7 +235,7 @@ class BatchProcessorTest extends TestCase
             ->selectAll()->cast(Phone::class)
             ->collectAll();
 
-        Assert::assertInstanceOf(Phone::class, $collection[0]);
+        $this->assertInstanceOf(Phone::class, $collection[0]);
     }
 
     public function testCollectTypedListOfMappedEntities()
@@ -222,7 +244,7 @@ class BatchProcessorTest extends TestCase
             ->selectAll()->cast(PhoneEntity::class)
             ->collectAll();
 
-        Assert::assertInstanceOf(PhoneEntity::class, $collection[0]);
+        $this->assertInstanceOf(PhoneEntity::class, $collection[0]);
     }
 
     public function testCollectNestedTypedList()
@@ -234,8 +256,8 @@ class BatchProcessorTest extends TestCase
             ->assertType(_int(), _class(AddressBookEntry::class))
             ->collectAll();
 
-        Assert::assertInstanceOf(AddressBookEntry::class, $collection[0]);
-        Assert::assertInstanceOf(Address::class, $collection[0]->addresses[1]);
+        $this->assertInstanceOf(AddressBookEntry::class, $collection[0]);
+        $this->assertInstanceOf(Address::class, $collection[0]->addresses[1]);
     }
 
     public function testCollate()
@@ -248,10 +270,10 @@ class BatchProcessorTest extends TestCase
             })
             ->collectAll();
 
-        Assert::assertEquals('Victoria', $collection[0]);
-        Assert::assertEquals('Australia', $collection[1]);
-        Assert::assertEquals('Russia', $collection[2]);
-        Assert::assertEquals('Saratov', $collection[3]);
+        $this->assertEquals('Victoria', $collection[0]);
+        $this->assertEquals('Australia', $collection[1]);
+        $this->assertEquals('Russia', $collection[2]);
+        $this->assertEquals('Saratov', $collection[3]);
     }
 
     public function testCollator()
@@ -261,7 +283,7 @@ class BatchProcessorTest extends TestCase
             ->map('country', 'details')->flatten()
             ->collectAll();
 
-        Assert::assertEquals('Saratovskaya Oblast', $collection['Russia']);
+        $this->assertEquals('Saratovskaya Oblast', $collection['Russia']);
     }
 
     public function testGroupIndices()
@@ -274,7 +296,7 @@ class BatchProcessorTest extends TestCase
             )
             ->collectAll();
 
-        Assert::assertEquals([0, 2], array_keys($collection));
+        $this->assertEquals([0, 2], array_keys($collection));
     }
 
     public function testMapIndices()
@@ -283,7 +305,7 @@ class BatchProcessorTest extends TestCase
             ->map('city', 'state')->flattenInto('cities')
             ->collectAll();
 
-        Assert::assertEquals([0, 2], array_keys($collection));
+        $this->assertEquals([0, 2], array_keys($collection));
     }
 
     public function testIterator()
@@ -300,6 +322,6 @@ class BatchProcessorTest extends TestCase
             ];
         }
 
-        Assert::assertEquals(iterator_to_array($this->phones()), $phones);
+        $this->assertEquals(iterator_to_array($this->phones()), $phones);
     }
 }

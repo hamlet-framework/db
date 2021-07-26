@@ -18,7 +18,7 @@ use Hamlet\Database\Processing\Split\SelectValue;
  *
  * @extends Collector<I,array<K, V>>
  */
-class Selector extends Collector
+class Selector extends Collection
 {
     /**
      * @param Generator<I,array<K,V>,mixed,void> $records
@@ -36,7 +36,7 @@ class Selector extends Collector
     public function selectValue(string $field): Converter
     {
         $splitter = new SelectValue($field);
-        return new Converter($this->records, $splitter, $this->streamingMode);
+        return new Converter($this->source, $splitter, $this->streamingMode);
     }
 
     /**
@@ -48,7 +48,7 @@ class Selector extends Collector
     {
         array_unshift($fields, $field);
         $splitter = new SelectFields($fields);
-        return new Converter($this->records, $splitter, $this->streamingMode);
+        return new Converter($this->source, $splitter, $this->streamingMode);
     }
 
     /**
@@ -59,7 +59,7 @@ class Selector extends Collector
     public function map(string $keyField, string $valueField): MapConverter
     {
         $splitter = new Map($keyField, $valueField);
-        return new MapConverter($this->records, $splitter, $this->streamingMode);
+        return new MapConverter($this->source, $splitter, $this->streamingMode);
     }
 
     /**
@@ -69,7 +69,7 @@ class Selector extends Collector
     public function selectByPrefix(string $prefix): Converter
     {
         $splitter = new SelectByPrefix($prefix);
-        return new Converter($this->records, $splitter, $this->streamingMode);
+        return new Converter($this->source, $splitter, $this->streamingMode);
     }
 
     /**
@@ -78,7 +78,7 @@ class Selector extends Collector
     public function selectAll(): Converter
     {
         $splitter = new SelectAll;
-        return new Converter($this->records, $splitter, $this->streamingMode);
+        return new Converter($this->source, $splitter, $this->streamingMode);
     }
 
     /**
@@ -90,15 +90,15 @@ class Selector extends Collector
     {
         array_unshift($fields, $field);
         $splitter = new Coalesce($fields);
-        return new Converter($this->records, $splitter, $this->streamingMode);
+        return new Converter($this->source, $splitter, $this->streamingMode);
     }
 
     /**
-     * @return Collector<int|string,V>
+     * @return Collection<int|string,V>
      */
-    public function coalesceAll(): Collector
+    public function coalesceAll(): Collection
     {
-        $generator = (new CoalesceAll)($this->records);
-        return new Collector($generator, $this->streamingMode);
+        $generator = (new CoalesceAll)($this->source);
+        return new Collection($generator, $this->streamingMode);
     }
 }

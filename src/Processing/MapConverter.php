@@ -39,16 +39,16 @@ class MapConverter extends Converter
     }
 
     /**
-     * @return Collector<K1,V1>
+     * @return Collection<K1,V1>
      */
-    public function flatten(): Collector
+    public function flatten(): Collection
     {
         if ($this->streamingMode) {
             $generator = (new FlattenStreamed)($this->records, $this->splitter);
         } else {
             $generator = (new FlattenBatched)($this->records, $this->splitter);
         }
-        return new Collector($generator, $this->streamingMode);
+        return new Collection($generator, $this->streamingMode);
     }
 
     /**

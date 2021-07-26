@@ -12,6 +12,6 @@ Base package for following sub-projects
 
 ## Outstanding ToDo
 
-- Cover splitters with unit tests
-- Add tracing to processor so that all transformations could be traced
+- Run profiler to improve performance
+- Add tracing to processor that could be used in every step
 - Extract generic tests into a BaseDatabaseTest to be used by all sub-projects
