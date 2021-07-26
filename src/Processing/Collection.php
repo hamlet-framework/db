@@ -38,12 +38,12 @@ class Collection
     protected $assertion = null;
 
     /**
-     * @param Generator<I,T> $records
+     * @param Generator<I,T> $source
      * @param bool $streamingMode
      */
-    public function __construct(Generator $records, bool $streamingMode)
+    public function __construct(Generator $source, bool $streamingMode)
     {
-        $this->source = $records;
+        $this->source = $source;
         $this->streamingMode = $streamingMode;
     }
 

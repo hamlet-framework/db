@@ -28,17 +28,15 @@ class FlattenIntoBatched
      * @template V
      * @template K1 as array-key
      * @template V1
-     * @param Generator<I,array<K,V>> $records
-     * @param callable(array<K,V>):array{0:array<K1,V1>,1:array<K,V>} $splitter
+     * @param Generator<I,array{array<K1,V1>,array<K,V>}> $records
      * @return Generator<I,array<K|string,V|array<K1,V1>>>
      */
-    public function __invoke(Generator $records, callable $splitter): Generator
+    public function __invoke(Generator $records): Generator
     {
         $processedRecords = [];
         $maps = [];
         $keys = [];
-        foreach ($records as $key => $record) {
-            list($item, $record) = $splitter($record);
+        foreach ($records as $key => list($item, $record)) {
             $hash = md5(serialize($record));
             if (!isset($keys[$hash])) {
                 $keys[$hash] = $key;

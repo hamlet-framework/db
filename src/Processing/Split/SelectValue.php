@@ -2,6 +2,7 @@
 
 namespace Hamlet\Database\Processing\Split;
 
+use Generator;
 use Hamlet\Database\DatabaseException;
 
 class SelectValue
@@ -20,9 +21,9 @@ class SelectValue
      * @template K as array-key
      * @template V
      * @param array<K,V> $record
-     * @return array{0:V,1:array<K,V>}
+     * @return array{V,array<K,V>}
      */
-    public function __invoke(array $record): array
+    public function apply(array $record): array
     {
         if (!array_key_exists($this->field, $record)) {
             throw new DatabaseException('Property "' . $this->field . '" not set in ' . var_export($record, true));
@@ -33,5 +34,19 @@ class SelectValue
         $item = $record[$this->field];
         unset($record[$this->field]);
         return [$item, $record];
+    }
+
+    /**
+     * @template I as array-key
+     * @template K as array-key
+     * @template V
+     * @param Generator<I,array<K,V>> $source
+     * @return Generator<I,array{V,array<K,V>}>
+     */
+    public function transform(Generator $source): Generator
+    {
+        foreach ($source as $key => $record) {
+            yield $key => $this->apply($record);
+        }
     }
 }

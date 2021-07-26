@@ -26,7 +26,7 @@ class CoalesceAllTest extends TestCase
             ];
         };
         $merge = new CoalesceAll();
-        $result = $merge($records());
+        $result = $merge->transform($records());
 
         $this->assertEquals([1, 4], iterator_to_array($result));
     }

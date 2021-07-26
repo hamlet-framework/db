@@ -85,7 +85,7 @@ class TypeResolutionTest extends TestCase
 
     public function testTypeResolver()
     {
-        $collection = (new Selector($this->users(), false))
+        $collection = (new SplitContext($this->users(), false))
             ->selectAll()->cast(AbstractUser::class)
             ->collectAll();
 
@@ -98,7 +98,7 @@ class TypeResolutionTest extends TestCase
     public function testTypeResolverThrowsExceptionOnFailedCastExpectations()
     {
         $this->expectException(RuntimeException::class);
-        (new Selector($this->users(), false))
+        (new SplitContext($this->users(), false))
             ->selectAll()->cast(SuperAnonymousUser::class)
             ->collectAll();
     }
@@ -106,7 +106,7 @@ class TypeResolutionTest extends TestCase
     public function testTypeResolverThrowsExceptionOfUnrelatedClass()
     {
         $this->expectException(RuntimeException::class);
-        (new Selector($this->users(), false))
+        (new SplitContext($this->users(), false))
             ->selectAll()->cast(RandomClass::class)
             ->collectAll();
     }

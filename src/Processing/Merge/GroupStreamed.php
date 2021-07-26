@@ -19,13 +19,12 @@ class GroupStreamed extends GroupIntoStreamed
      * @template K as array-key
      * @template V
      * @template E
-     * @param Generator<I,array<K,V>> $records
-     * @param callable(array<K,V>):array{0:E,1:array<K,V>} $splitter
-     * @return Generator<I,array<I,E>|V>
+     * @param Generator<I,array{E,array<K,V>}> $records
+     * @return Generator<I,list<E>>
      */
-    public function __invoke(Generator $records, callable $splitter): Generator
+    public function __invoke(Generator $records): Generator
     {
-        foreach (parent::__invoke($records, $splitter) as $key => $record) {
+        foreach (parent::__invoke($records) as $key => $record) {
             $value = $record[':property:'];
             // @todo can we check the type somehow?
             yield $key => $value;

@@ -3,7 +3,7 @@
 namespace Hamlet\Database;
 
 use Generator;
-use Hamlet\Database\Processing\Selector;
+use Hamlet\Database\Processing\SplitContext;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use function assert;
@@ -180,9 +180,9 @@ abstract class Procedure implements LoggerAwareInterface
     }
 
     /**
-     * @return Selector<int,string,int|string|float|null>
+     * @return SplitContext<int,string,int|string|float|null>
      */
-    public function processOne(): Selector
+    public function processOne(): SplitContext
     {
         $generator =
             /**
@@ -194,23 +194,23 @@ abstract class Procedure implements LoggerAwareInterface
                     return;
                 }
             };
-        return new Selector($generator(), false);
+        return new SplitContext($generator(), false);
     }
 
     /**
-     * @return Selector<int,string,int|string|float|null>
+     * @return SplitContext<int,string,int|string|float|null>
      */
-    public function processAll(): Selector
+    public function processAll(): SplitContext
     {
-        return new Selector($this->fetch(), false);
+        return new SplitContext($this->fetch(), false);
     }
 
     /**
-     * @return Selector<int,string,int|string|float|null>
+     * @return SplitContext<int,string,int|string|float|null>
      */
-    public function stream(): Selector
+    public function stream(): SplitContext
     {
-        return new Selector($this->fetch(), true);
+        return new SplitContext($this->fetch(), true);
     }
 
     abstract public function insert(): int;

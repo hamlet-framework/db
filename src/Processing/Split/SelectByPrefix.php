@@ -2,6 +2,8 @@
 
 namespace Hamlet\Database\Processing\Split;
 
+use Generator;
+
 class SelectByPrefix
 {
     /**
@@ -29,9 +31,9 @@ class SelectByPrefix
      * @template K as array-key
      * @template V
      * @param array<K,V> $record
-     * @return array{0:array<string,V>,1:array<K,V>}
+     * @return array{array<string,V>,array<K,V>}
      */
-    public function __invoke(array $record): array
+    public function apply(array $record): array
     {
         $item = [];
         foreach ($record as $field => &$value) {
@@ -54,5 +56,19 @@ class SelectByPrefix
             }
         }
         return [$item, $record];
+    }
+
+    /**
+     * @template I as array-key
+     * @template K as array-key
+     * @template V
+     * @param Generator<I,array<K,V>> $source
+     * @return Generator<I,array{array<string,V>,array<K,V>}>
+     */
+    public function transform(Generator $source): Generator
+    {
+        foreach ($source as $key => $record) {
+            yield $key => $this->apply($record);
+        }
     }
 }

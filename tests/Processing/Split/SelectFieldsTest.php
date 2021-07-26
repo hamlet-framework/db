@@ -15,7 +15,7 @@ class SelectFieldsTest extends TestCase
         ];
         $splitter = new SelectFields(['a', 'c']);
         $this->expectException(DatabaseException::class);
-        $splitter($record);
+        $splitter->apply($record);
     }
 
     public function test_fields_are_taken_and_original_record_reduced()
@@ -26,6 +26,6 @@ class SelectFieldsTest extends TestCase
             'c' => 3,
         ];
         $splitter = new SelectFields(['b', 'c']);
-        $this->assertSame([['b' => 2, 'c' => 3], ['a' => 1]], $splitter($record));
+        $this->assertSame([['b' => 2, 'c' => 3], ['a' => 1]], $splitter->apply($record));
     }
 }

@@ -21,14 +21,13 @@ class FlattenStreamed extends FlattenIntoBatched
      * @template V
      * @template K1 as array-key
      * @template V1
-     * @param Generator<I,array<K,V>> $records
-     * @param callable(array<K,V>):array{0:array<K1,V1>,1:array<K,V>} $splitter
+     * @param Generator<I,array{array<K1,V1>,array<K,V>}> $records
      * @return Generator<K1,V1>
      */
-    public function __invoke(Generator $records, callable $splitter): Generator
+    public function __invoke(Generator $records): Generator
     {
         $map = [];
-        foreach (parent::__invoke($records, $splitter) as $record) {
+        foreach (parent::__invoke($records) as $record) {
             $item = $record[':property:'];
             if (!is_array($item)) {
                 throw new DatabaseException('Expected array, given: ' . var_export($item, true));

@@ -11,9 +11,9 @@ class CoalesceAll
      * @template K as array-key
      * @template V
      * @param Generator<I,array<K,V>> $records $records
-     * @return Generator<int|string,V>
+     * @return Generator<I,V>
      */
-    public function __invoke(Generator $records): Generator
+    public function transform(Generator $records): Generator
     {
         foreach ($records as $key => $record) {
             foreach ($record as &$value) {

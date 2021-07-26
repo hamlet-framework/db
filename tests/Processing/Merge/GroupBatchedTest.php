@@ -33,7 +33,7 @@ class GroupBatchedTest extends TestCase
         $split = new SelectValue('card');
         $merge = new GroupBatched();
 
-        $result = iterator_to_array($merge($records(), $split));
+        $result = iterator_to_array($merge($split->transform($records())));
 
         $this->assertEquals([0 => ['king', '8', '10'], 2 => ['queen']], $result);
     }

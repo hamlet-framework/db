@@ -24,17 +24,15 @@ class GroupIntoStreamed
      * @template K as array-key
      * @template V
      * @template E
-     * @param Generator<I,array<K,V>> $records
-     * @param callable(array<K,V>):array{0:E,1:array<K,V>} $splitter
+     * @param Generator<I,array{E,array<K,V>}> $records
      * @return Generator<I,array<K|string,V|list<E>>>
      */
-    public function __invoke(Generator $records, callable $splitter): Generator
+    public function __invoke(Generator $records): Generator
     {
         $currentGroup = null;
         $lastRecord = null;
         $lastKey = null;
-        foreach ($records as $key => $record) {
-            list($item, $record) = $splitter($record);
+        foreach ($records as $key => list($item, $record)) {
             if ($lastRecord !== $record) {
                 if (!$this->isNull($currentGroup)) {
                     if ($lastRecord === null) {

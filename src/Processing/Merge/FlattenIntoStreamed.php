@@ -26,11 +26,10 @@ class FlattenIntoStreamed
      * @template V
      * @template K1 as array-key
      * @template V1
-     * @param Generator<I,array<K,V>> $records
-     * @param callable(array<K,V>):array{0:array<K1,V1>,1:array<K,V>} $splitter
+     * @param Generator<I,array{array<K1,V1>,array<K,V>}> $records
      * @return Generator<I,array<K|string,V|array<K1,V1>>>
      */
-    public function __invoke(Generator $records, callable $splitter): Generator
+    public function __invoke(Generator $records): Generator
     {
         /** @var array<K1,V1>|null $currentGroup */
         $currentGroup = null;
@@ -41,8 +40,7 @@ class FlattenIntoStreamed
         /** @var I|null $lastKey */
         $lastKey = null;
 
-        foreach ($records as $key => $record) {
-            list($item, $record) = $splitter($record);
+        foreach ($records as $key => list($item, $record)) {
             if ($lastRecord !== $record) {
                 if ($currentGroup !== null) {
                     if ($lastRecord === null) {

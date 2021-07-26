@@ -15,7 +15,7 @@ class CoalesceTest extends TestCase
         ];
         $splitter = new Coalesce(['c', 'a']);
         $this->expectException(DatabaseException::class);
-        $splitter($record);
+        $splitter->apply($record);
     }
 
     public function test_null_values_are_skipped()
@@ -25,7 +25,7 @@ class CoalesceTest extends TestCase
             'b' => 1
         ];
         $splitter = new Coalesce(['a', 'b']);
-        $this->assertEquals([1, []], $splitter($record));
+        $this->assertEquals([1, []], $splitter->apply($record));
     }
 
     public function test_remaining_fields_are_removed()
@@ -36,6 +36,6 @@ class CoalesceTest extends TestCase
             'c' => 3
         ];
         $splitter = new Coalesce(['a', 'b']);
-        $this->assertEquals([1, ['c' => 3]], $splitter($record));
+        $this->assertEquals([1, ['c' => 3]], $splitter->apply($record));
     }
 }

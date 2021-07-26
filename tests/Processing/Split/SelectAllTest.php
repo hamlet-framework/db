@@ -14,6 +14,6 @@ class SelectAllTest extends TestCase
             'c' => null
         ];
         $splitter = new SelectAll;
-        $this->assertSame([$record, []], $splitter($record));
+        $this->assertSame([$record, []], $splitter->apply($record));
     }
 }

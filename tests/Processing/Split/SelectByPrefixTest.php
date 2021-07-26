@@ -14,7 +14,7 @@ class SelectByPrefixTest extends TestCase
             '1c' => 'C',
         ];
         $splitter = new SelectByPrefix('1');
-        $this->assertEquals([['b' => 'B', 'c' => 'C'], [1 => 'A']], $splitter($record));
+        $this->assertEquals([['b' => 'B', 'c' => 'C'], [1 => 'A']], $splitter->apply($record));
     }
 
     public function test_fields_are_taken_and_original_record_reduced()
@@ -25,9 +25,9 @@ class SelectByPrefixTest extends TestCase
             'c' => 'C'
         ];
         $splitter = new SelectByPrefix('f_');
-        $this->assertEquals([['a' => 'A', 'b' => 'B'], ['c' => 'C']], $splitter($record));
+        $this->assertEquals([['a' => 'A', 'b' => 'B'], ['c' => 'C']], $splitter->apply($record));
 
         // apply again to see if the cache is working
-        $this->assertEquals([['a' => 'A', 'b' => 'B'], ['c' => 'C']], $splitter($record));
+        $this->assertEquals([['a' => 'A', 'b' => 'B'], ['c' => 'C']], $splitter->apply($record));
     }
 }

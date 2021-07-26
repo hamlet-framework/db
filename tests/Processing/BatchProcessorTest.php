@@ -163,7 +163,7 @@ class BatchProcessorTest extends TestCase
 
     public function testFieldExtractor()
     {
-        $collection = (new Selector($this->phones(), $this->streamingMode()))
+        $collection = (new SplitContext($this->phones(), $this->streamingMode()))
             ->selectValue('phone')->groupInto('phones')
             ->collectAll();
 
@@ -174,7 +174,7 @@ class BatchProcessorTest extends TestCase
 
     public function testCollectToMap()
     {
-        $collection = (new Selector($this->phones(), $this->streamingMode()))
+        $collection = (new SplitContext($this->phones(), $this->streamingMode()))
             ->selectValue('phone')->groupInto('phones')
             ->map('name', 'phones')->flatten()
             ->collectAll();
@@ -186,7 +186,7 @@ class BatchProcessorTest extends TestCase
 
     public function testGroup()
     {
-        $head = (new Selector($this->addresses(), $this->streamingMode()))
+        $head = (new SplitContext($this->addresses(), $this->streamingMode()))
             ->selectByPrefix('address_')->group()
             ->collectHead();
 
@@ -196,7 +196,7 @@ class BatchProcessorTest extends TestCase
 
     public function testSelectFieldsExplicitly()
     {
-        $collection = (new Selector($this->addresses(), $this->streamingMode()))
+        $collection = (new SplitContext($this->addresses(), $this->streamingMode()))
             ->selectFields('address_street', 'address_number')->groupInto('addresses')
             ->map('name', 'addresses')->flatten()
             ->collectAll();
@@ -208,7 +208,7 @@ class BatchProcessorTest extends TestCase
 
     public function testPrefixExtractor()
     {
-        $collection = (new Selector($this->addresses(), $this->streamingMode()))
+        $collection = (new SplitContext($this->addresses(), $this->streamingMode()))
             ->selectByPrefix('address_')->groupInto('addresses')
             ->map('name', 'addresses')->flatten()
             ->collectAll();
@@ -220,7 +220,7 @@ class BatchProcessorTest extends TestCase
 
     public function testNestedGroups()
     {
-        $collection = (new Selector($this->cities(), $this->streamingMode()))
+        $collection = (new SplitContext($this->cities(), $this->streamingMode()))
             ->selectValue('city')->groupInto('cities')
             ->map('state', 'cities')->flattenInto('states')
             ->map('country', 'states')->flatten()
@@ -231,7 +231,7 @@ class BatchProcessorTest extends TestCase
 
     public function testCollectTypedList()
     {
-        $collection = (new Selector($this->phones(), $this->streamingMode()))
+        $collection = (new SplitContext($this->phones(), $this->streamingMode()))
             ->selectAll()->cast(Phone::class)
             ->collectAll();
 
@@ -240,7 +240,7 @@ class BatchProcessorTest extends TestCase
 
     public function testCollectTypedListOfMappedEntities()
     {
-        $collection = (new Selector($this->phones(), $this->streamingMode()))
+        $collection = (new SplitContext($this->phones(), $this->streamingMode()))
             ->selectAll()->cast(PhoneEntity::class)
             ->collectAll();
 
@@ -249,7 +249,7 @@ class BatchProcessorTest extends TestCase
 
     public function testCollectNestedTypedList()
     {
-        $collection = (new Selector($this->addresses(), $this->streamingMode()))
+        $collection = (new SplitContext($this->addresses(), $this->streamingMode()))
             ->selectByPrefix('address_')->castInto(Address::class, 'address')
             ->selectValue('address')->groupInto('addresses')
             ->selectAll()->cast(AddressBookEntry::class)
@@ -262,7 +262,7 @@ class BatchProcessorTest extends TestCase
 
     public function testCollate()
     {
-        $collection = (new Selector($this->locations(), $this->streamingMode()))
+        $collection = (new SplitContext($this->locations(), $this->streamingMode()))
             ->coalesceAll()
             ->assertType(_int(), _string())
             ->assertForEach(function ($id, $name) {
@@ -278,7 +278,7 @@ class BatchProcessorTest extends TestCase
 
     public function testCollator()
     {
-        $collection = (new Selector($this->locations(), $this->streamingMode()))
+        $collection = (new SplitContext($this->locations(), $this->streamingMode()))
             ->coalesce('state', 'city')->name('details')
             ->map('country', 'details')->flatten()
             ->collectAll();
@@ -288,7 +288,7 @@ class BatchProcessorTest extends TestCase
 
     public function testGroupIndices()
     {
-        $collection = (new Selector($this->phones(), $this->streamingMode()))
+        $collection = (new SplitContext($this->phones(), $this->streamingMode()))
             ->selectValue('phone')->groupInto('phones')
             ->assertType(
                 _int(),
@@ -301,7 +301,7 @@ class BatchProcessorTest extends TestCase
 
     public function testMapIndices()
     {
-        $collection = (new Selector($this->cities(), $this->streamingMode()))
+        $collection = (new SplitContext($this->cities(), $this->streamingMode()))
             ->map('city', 'state')->flattenInto('cities')
             ->collectAll();
 
@@ -310,7 +310,7 @@ class BatchProcessorTest extends TestCase
 
     public function testIterator()
     {
-        $iterator = (new Selector($this->phones(), $this->streamingMode()))
+        $iterator = (new SplitContext($this->phones(), $this->streamingMode()))
             ->map('phone', 'name')->flatten()
             ->iterator();
 

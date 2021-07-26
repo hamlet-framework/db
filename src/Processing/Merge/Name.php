@@ -21,14 +21,12 @@ class Name
      * @template K as array-key
      * @template V
      * @template E
-     * @param Generator<I,array<K,V>,mixed,void> $records
-     * @param callable(array<K,V>):array{0:E,1:array<K,V>} $splitter
+     * @param Generator<I,array{E,array<K,V>}> $records
      * @return Generator<I,array<K|string,V|E>>
      */
-    public function __invoke(Generator $records, callable $splitter): Generator
+    public function __invoke(Generator $records): Generator
     {
-        foreach ($records as $key => $record) {
-            list($item, $record) = ($splitter)($record);
+        foreach ($records as $key => list($item, $record)) {
             $record[$this->name] = $item;
             yield $key => $record;
         }

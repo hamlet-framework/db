@@ -2,6 +2,7 @@
 
 namespace Hamlet\Database\Processing\Split;
 
+use Generator;
 use Hamlet\Database\DatabaseException;
 
 class Coalesce
@@ -23,9 +24,9 @@ class Coalesce
      * @template K as array-key
      * @template V
      * @param array<K,V> $record
-     * @return array{0:V|null,1:array<K,V>}
+     * @return array{V|null,array<K,V>}
      */
-    public function __invoke(array $record): array
+    public function apply(array $record): array
     {
         $item = null;
         foreach ($this->fields as $field) {
@@ -38,5 +39,19 @@ class Coalesce
             unset($record[$field]);
         }
         return [$item, $record];
+    }
+
+    /**
+     * @template I as array-key
+     * @template K as array-key
+     * @template V
+     * @param Generator<I,array<K,V>> $source
+     * @return Generator<I,array{V|null,array<K,V>}>
+     */
+    public function transform(Generator $source): Generator
+    {
+        foreach ($source as $key => $record) {
+            yield $key => $this->apply($record);
+        }
     }
 }

@@ -26,18 +26,16 @@ class GroupIntoBatched
      * @template K as array-key
      * @template V
      * @template E
-     * @param Generator<I,array<K,V>> $records
-     * @param callable(array<K,V>):array{0:E,1:array<K,V>} $splitter
+     * @param Generator<I,array{E,array<K,V>}> $records
      * @return Generator<I,array<K|string,V|list<E>>>
      */
-    public function __invoke(Generator $records, callable $splitter): Generator
+    public function __invoke(Generator $records): Generator
     {
         $processedRecords = [];
         $groups = [];
         $keys = [];
 
-        foreach ($records as $key => $record) {
-            list($item, $record) = $splitter($record);
+        foreach ($records as $key => list($item, $record)) {
             $hash = md5(serialize($record));
             if (!isset($keys[$hash])) {
                 $keys[$hash] = $key;

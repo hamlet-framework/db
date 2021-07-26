@@ -36,16 +36,14 @@ class CastInto
      * @template K as array-key
      * @template V
      * @template E
-     * @param Generator<I,array<K,V>,mixed,void> $records
-     * @param callable(array<K,V>):array{0:E,1:array<K,V>} $splitter
-     * @return Generator<I,array<K|string,V|Q|null>>
+     * @param Generator<I,array{E,array<K,V>}> $records
+     * @return Generator<I,array<K|string,V|Q>>
      */
-    public function __invoke(Generator $records, callable $splitter): Generator
+    public function __invoke(Generator $records): Generator
     {
         $type = new ClassType($this->typeName);
         $entityResolver = new EntityResolver;
-        foreach ($records as $key => $record) {
-            list($item, $record) = ($splitter)($record);
+        foreach ($records as $key => list($item, $record)) {
             $instance = $type->resolveAndCast($item, $entityResolver);
             $record[$this->name] = $instance;
             yield $key => $record;

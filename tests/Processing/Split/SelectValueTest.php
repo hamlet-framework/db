@@ -15,7 +15,7 @@ class SelectValueTest extends TestCase
         ];
         $splitter = new SelectValue('c');
         $this->expectException(DatabaseException::class);
-        $splitter($record);
+        $splitter->apply($record);
     }
 
     public function test_value_is_taken_and_original_record_reduced()
@@ -25,6 +25,6 @@ class SelectValueTest extends TestCase
             'b' => 2,
         ];
         $splitter = new SelectValue('b');
-        $this->assertSame([2, ['a' => 1]], $splitter($record));
+        $this->assertSame([2, ['a' => 1]], $splitter->apply($record));
     }
 }
