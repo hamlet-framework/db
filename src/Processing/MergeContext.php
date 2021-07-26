@@ -48,21 +48,21 @@ class MergeContext
      */
     public function name(string $name): SplitContext
     {
-        $generator = (new Name($name))($this->source);
-        return new SplitContext($generator, $this->streamingMode);
+        $generator = new Name($name);
+        return new SplitContext($generator->transform($this->source), $this->streamingMode);
     }
 
     /**
-     * @return Collection<I,array<I,E>|V>
+     * @return Collection<I,list<E>>
      */
     public function group(): Collection
     {
         if ($this->streamingMode) {
-            $generator = (new GroupStreamed)($this->source);
+            $generator = new GroupStreamed;
         } else {
-            $generator = (new GroupBatched)($this->source);
+            $generator = new GroupBatched;
         }
-        return new Collection($generator, $this->streamingMode);
+        return new Collection($generator->transform($this->source), $this->streamingMode);
     }
 
     /**
@@ -72,33 +72,33 @@ class MergeContext
     public function groupInto(string $name): SplitContext
     {
         if ($this->streamingMode) {
-            $generator = (new GroupIntoStreamed($name))($this->source);
+            $generator = new GroupIntoStreamed($name);
         } else {
-            $generator = (new GroupIntoBatched($name))($this->source);
+            $generator = new GroupIntoBatched($name);
         }
-        return new SplitContext($generator, $this->streamingMode);
+        return new SplitContext($generator->transform($this->source), $this->streamingMode);
     }
 
     /**
-     * @template Q
+     * @template Q as object
      * @param class-string<Q> $typeName
      * @return Collection<I,Q>
      */
     public function cast(string $typeName): Collection
     {
-        $generator = (new Cast($typeName))($this->source);
-        return new Collection($generator, $this->streamingMode);
+        $generator = new Cast($typeName);
+        return new Collection($generator->transform($this->source), $this->streamingMode);
     }
 
     /**
-     * @template Q
+     * @template Q as object
      * @param class-string<Q> $typeName
      * @param string $name
      * @return SplitContext<I,K|string,V|Q>
      */
     public function castInto(string $typeName, string $name): SplitContext
     {
-        $generator = (new CastInto($typeName, $name))($this->source);
-        return new SplitContext($generator, $this->streamingMode);
+        $generator = new CastInto($typeName, $name);;
+        return new SplitContext($generator->transform($this->source), $this->streamingMode);
     }
 }

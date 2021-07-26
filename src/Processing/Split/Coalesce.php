@@ -32,7 +32,7 @@ class Coalesce
         foreach ($this->fields as $field) {
             if ($item === null) {
                 if (!array_key_exists($field, $record)) {
-                    throw new DatabaseException('Property "' . $field . '" not set in ' . var_export($record, true));
+                    throw new DatabaseException(sprintf('Property "%s" not set in %s', $field, var_export($record, true)));
                 }
                 $item = $record[$field];
             }

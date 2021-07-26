@@ -27,7 +27,7 @@ class GroupIntoStreamed
      * @param Generator<I,array{E,array<K,V>}> $records
      * @return Generator<I,array<K|string,V|list<E>>>
      */
-    public function __invoke(Generator $records): Generator
+    public function transform(Generator $records): Generator
     {
         $currentGroup = null;
         $lastRecord = null;

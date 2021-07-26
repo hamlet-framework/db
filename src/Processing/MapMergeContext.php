@@ -37,11 +37,11 @@ class MapMergeContext extends MergeContext
     public function flatten(): Collection
     {
         if ($this->streamingMode) {
-            $generator = (new FlattenStreamed)($this->source);
+            $generator = new FlattenStreamed;
         } else {
-            $generator = (new FlattenBatched)($this->source);
+            $generator = new FlattenBatched;
         }
-        return new Collection($generator, $this->streamingMode);
+        return new Collection($generator->transform($this->source), $this->streamingMode);
     }
 
     /**
@@ -51,10 +51,10 @@ class MapMergeContext extends MergeContext
     public function flattenInto(string $name): SplitContext
     {
         if ($this->streamingMode) {
-            $generator = (new FlattenIntoStreamed($name))($this->source);
+            $generator = new FlattenIntoStreamed($name);
         } else {
-            $generator = (new FlattenIntoBatched($name))($this->source);
+            $generator = new FlattenIntoBatched($name);
         }
-        return new SplitContext($generator, $this->streamingMode);
+        return new SplitContext($generator->transform($this->source), $this->streamingMode);
     }
 }

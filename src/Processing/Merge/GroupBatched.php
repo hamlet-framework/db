@@ -21,12 +21,14 @@ class GroupBatched extends GroupIntoBatched
      * @template E
      * @param Generator<I,array{E,array<K,V>}> $records
      * @return Generator<I,list<E>>
+     * @psalm-suppress ImplementedReturnTypeMismatch
+     * @psalm-suppress MixedReturnTypeCoercion
      */
-    public function __invoke(Generator $records): Generator
+    public function transform(Generator $records): Generator
     {
-        foreach (parent::__invoke($records) as $key => $record) {
+        foreach (parent::transform($records) as $key => $record) {
+            assert(array_key_exists(':property:', $record));
             $value = $record[':property:'];
-            // @todo can we check the type somehow?
             yield $key => $value;
         }
     }

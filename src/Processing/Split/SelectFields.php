@@ -24,14 +24,16 @@ class SelectFields
      * @template K as array-key
      * @template V
      * @param array<K,V> $record
-     * @return array{array<string,V>,array<K,V>}
+     * @return array{array<K,V>,array<K,V>}
+     * @psalm-suppress InvalidReturnStatement
+     * @psalm-suppress InvalidReturnType
      */
     public function apply(array $record): array
     {
         $item = [];
         foreach ($this->fields as $field) {
             if (!array_key_exists($field, $record)) {
-                throw new DatabaseException('Property "' . $field . '" not set in ' . var_export($record, true));
+                throw new DatabaseException(sprintf('Property "%s" not set in %s', $field, var_export($record, true)));
             }
             $item[$field] = $record[$field];
             unset($record[$field]);
@@ -44,7 +46,7 @@ class SelectFields
      * @template K as array-key
      * @template V
      * @param Generator<I,array<K,V>> $source
-     * @return Generator<I,array{array<string,V>,array<K,V>}>
+     * @return Generator<I,array{array<K,V>,array<K,V>}>
      */
     public function transform(Generator $source): Generator
     {

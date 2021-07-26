@@ -24,7 +24,7 @@ class Name
      * @param Generator<I,array{E,array<K,V>}> $records
      * @return Generator<I,array<K|string,V|E>>
      */
-    public function __invoke(Generator $records): Generator
+    public function transform(Generator $records): Generator
     {
         foreach ($records as $key => list($item, $record)) {
             $record[$this->name] = $item;

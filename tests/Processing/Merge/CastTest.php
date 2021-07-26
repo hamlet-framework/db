@@ -25,7 +25,7 @@ class CastTest extends TestCase
         };
         $split = new SelectFields(['name']);
         $merge = new Cast(A::class);
-        $result = iterator_to_array($merge($split->transform($records())));
+        $result = iterator_to_array($merge->transform($split->transform($records())));
 
         $this->assertCount(2, $result);
         $this->assertInstanceOf(A::class, $result[0]);
@@ -47,8 +47,6 @@ class CastTest extends TestCase
         $merge = new Cast(A::class);
 
         $this->expectException(CastException::class);
-
-        print_r(iterator_to_array($merge($records(), $split)));
-        $merge($records(), $split);
+        iterator_to_array($merge->transform($split->transform($records())));
     }
 }

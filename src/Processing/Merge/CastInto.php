@@ -7,7 +7,7 @@ use Hamlet\Cast\ClassType;
 use Hamlet\Database\Resolvers\EntityResolver;
 
 /**
- * @template Q
+ * @template Q as object
  */
 class CastInto
 {
@@ -39,7 +39,7 @@ class CastInto
      * @param Generator<I,array{E,array<K,V>}> $records
      * @return Generator<I,array<K|string,V|Q>>
      */
-    public function __invoke(Generator $records): Generator
+    public function transform(Generator $records): Generator
     {
         $type = new ClassType($this->typeName);
         $entityResolver = new EntityResolver;

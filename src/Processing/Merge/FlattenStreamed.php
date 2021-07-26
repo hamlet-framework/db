@@ -3,7 +3,6 @@
 namespace Hamlet\Database\Processing\Merge;
 
 use Generator;
-use Hamlet\Database\DatabaseException;
 use Hamlet\Database\Traits\EntityFactoryTrait;
 
 class FlattenStreamed extends FlattenIntoBatched
@@ -23,15 +22,20 @@ class FlattenStreamed extends FlattenIntoBatched
      * @template V1
      * @param Generator<I,array{array<K1,V1>,array<K,V>}> $records
      * @return Generator<K1,V1>
+     * @psalm-suppress LessSpecificImplementedReturnType
+     * @psalm-suppress MixedReturnTypeCoercion
      */
-    public function __invoke(Generator $records): Generator
+    public function transform(Generator $records): Generator
     {
         $map = [];
-        foreach (parent::__invoke($records) as $record) {
+        foreach (parent::transform($records) as $record) {
+            assert(array_key_exists(':property:', $record));
             $item = $record[':property:'];
-            if (!is_array($item)) {
-                throw new DatabaseException('Expected array, given: ' . var_export($item, true));
-            }
+            assert(is_array($item));
+            /**
+             * @psalm-suppress MixedAssignment
+             * @psalm-suppress MixedOperand
+             */
             $map += $item;
         }
         yield from $map;

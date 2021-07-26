@@ -29,7 +29,7 @@ class FlattenIntoStreamed
      * @param Generator<I,array{array<K1,V1>,array<K,V>}> $records
      * @return Generator<I,array<K|string,V|array<K1,V1>>>
      */
-    public function __invoke(Generator $records): Generator
+    public function transform(Generator $records): Generator
     {
         /** @var array<K1,V1>|null $currentGroup */
         $currentGroup = null;
@@ -59,9 +59,7 @@ class FlattenIntoStreamed
                 if ($currentGroup === null) {
                     $currentGroup = [];
                 }
-                if (!is_array($item)) {
-                    throw new DatabaseException('Expected array, given: ' . var_export($item, true));
-                }
+                assert(is_array($item));
                 $currentGroup += $item;
             }
             $lastRecord = $record;

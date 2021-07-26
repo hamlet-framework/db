@@ -32,20 +32,23 @@ class Map
     public function apply(array $record): array
     {
         if (!array_key_exists($this->keyField, $record)) {
-            throw new DatabaseException('Property "' . $this->keyField . '" not set in ' . var_export($record, true));
+            throw new DatabaseException(sprintf('Property "%s" not set in %s', $this->keyField, var_export($record, true)));
         }
         /**
          * @psalm-suppress PossiblyInvalidArrayOffset
          */
         $key = $record[$this->keyField];
-        if (!(is_null($key) || is_scalar($key) || (is_object($key) && method_exists($key, '__toString')))) {
-            throw new DatabaseException('Cannot use property "' . $this->keyField . '" as a key in ' . var_export($record, true));
+        if (!is_null($key) && !is_scalar($key) && (!is_object($key) || !method_exists($key, '__toString'))) {
+            throw new DatabaseException(sprintf('Cannot use property "%s" as a key in %s', $this->keyField, var_export($record, true)));
         }
+        /**
+         * @psalm-suppress DocblockTypeContradiction
+         */
         if (!is_int($key)) {
             $key = (string) $key;
         }
         if (!array_key_exists($this->valueField, $record)) {
-            throw new DatabaseException('Property "' . $this->valueField . '" not set in ' . var_export($record, true));
+            throw new DatabaseException(sprintf('Property "%s" not set in %s', $this->valueField, var_export($record, true)));
         }
         /**
          * @psalm-suppress PossiblyInvalidArrayOffset

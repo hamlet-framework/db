@@ -33,7 +33,7 @@ class GroupStreamedTest extends TestCase
         $split = new SelectValue('card');
         $merge = new GroupStreamed();
 
-        $result = iterator_to_array($merge($split->transform($records())));
+        $result = iterator_to_array($merge->transform($split->transform($records())));
 
         $this->assertEquals([0 => ['king', '8'], 2 => ['queen'], 3 => ['10']], $result);
     }

@@ -26,7 +26,7 @@ class SelectValue
     public function apply(array $record): array
     {
         if (!array_key_exists($this->field, $record)) {
-            throw new DatabaseException('Property "' . $this->field . '" not set in ' . var_export($record, true));
+            throw new DatabaseException(sprintf('Property "%s" not set in %s', $this->field, var_export($record, true)));
         }
         /**
          * @psalm-suppress PossiblyInvalidArrayOffset

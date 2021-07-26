@@ -41,13 +41,13 @@ class MethodBasedTypeResolver implements TypeResolver
     {
         $subType = $this->reflectionMethod->invoke(null, $value);
         if (!is_string($subType)) {
-            throw new DatabaseException('Type resolver must return a string: ' . $this->reflectionMethod->getName());
+            throw new DatabaseException(sprintf('Type resolver must return a string: %s', $this->reflectionMethod->getName()));
         }
         if (!class_exists($subType)) {
-            throw new DatabaseException('Type resolver must return a valid class-string: ' . $subType . ' returned');
+            throw new DatabaseException(sprintf('Type resolver must return a valid class-string: %s returned', $subType));
         }
         if (!is_subclass_of($subType, $this->parentType)) {
-            throw new DatabaseException('Type resolved outside of inheritance tree: ' . $subType . ' is not subclass of ' . $this->parentType);
+            throw new DatabaseException(sprintf('Type resolved outside of inheritance tree: %s is not subclass of %s', $subType, $this->parentType));
         }
         return $subType;
     }

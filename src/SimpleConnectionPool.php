@@ -60,7 +60,7 @@ class SimpleConnectionPool implements ConnectionPool
     {
         if ($this->size > 0) {
             $this->size--;
-            $this->logger->debug('Fetching connection from pool (' . $this->size . ' connections left in pool)');
+            $this->logger->debug(sprintf('Fetching connection from pool (%d connections left in pool)', $this->size));
             $connection = $this->pool->pop();
         } else {
             $this->logger->debug('Opening new connection');
@@ -76,7 +76,7 @@ class SimpleConnectionPool implements ConnectionPool
     public function push($connection)
     {
         $this->size++;
-        $this->logger->debug('Releasing connection back to pool (' . $this->size . ' connections)');
+        $this->logger->debug(sprintf('Releasing connection back to pool (%d connections)', $this->size));
         $this->pool->push($connection);
     }
 }
