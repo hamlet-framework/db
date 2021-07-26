@@ -156,7 +156,7 @@ abstract class Procedure implements LoggerAwareInterface
     }
 
     /**
-     * @return Generator<int,array<string,int|string|float|null>,mixed,void>
+     * @return Generator<int,array<string,int|string|float|null>>
      */
     abstract protected function fetch(): Generator;
 
@@ -186,7 +186,7 @@ abstract class Procedure implements LoggerAwareInterface
     {
         $generator =
             /**
-             * @return Generator<int,array<string,int|string|float|null>,mixed,void>
+             * @return Generator<int,array<string,int|string|float|null>>
              */
             function () {
                 foreach ($this->fetch() as $key => $record) {

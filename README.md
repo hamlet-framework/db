@@ -14,4 +14,5 @@ Base package for following sub-projects
 
 - Run profiler to improve performance
 - Add tracing to processor that could be used in every step
+- Add test coverage metrics  
 - Extract generic tests into a BaseDatabaseTest to be used by all sub-projects
