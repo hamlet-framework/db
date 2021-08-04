@@ -98,7 +98,7 @@ class MergeContext
      */
     public function castInto(string $typeName, string $name): SplitContext
     {
-        $generator = new CastInto($typeName, $name);;
+        $generator = new CastInto($typeName, $name);
         return new SplitContext($generator->transform($this->source), $this->streamingMode);
     }
 }
