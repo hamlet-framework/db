@@ -18,8 +18,8 @@
   "require": {
     "php": "^7 || ^8",
     "ext-json": "@stable",
-    "hamlet-framework/type": ">= 0.2.0",
-    "psr/log": "@stable"
+    "hamlet-framework/type": ">=0.2.0",
+    "psr/log": "^1"
   },
   "require-dev": {
     "monolog/monolog": "@stable",
@@ -27,8 +27,7 @@
     "php-parallel-lint/php-parallel-lint": "@stable",
     "phpunit/phpunit": "^6 || ^7 || ^8 || ^9",
     "squizlabs/php_codesniffer": "@stable",
-    "vimeo/psalm": "@stable",
-    "symfony/polyfill-mbstring": "<=1.20.0"
+    "vimeo/psalm": "@stable"
   },
   "autoload": {
     "psr-4": {
