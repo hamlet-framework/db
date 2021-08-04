@@ -4,6 +4,7 @@ namespace Hamlet\Database\Resolvers;
 
 use Hamlet\Cast\Resolvers\DefaultResolver;
 use Hamlet\Cast\Resolvers\SubTypeResolution;
+use Hamlet\Database\DatabaseException;
 use ReflectionException;
 use RuntimeException;
 
@@ -30,9 +31,6 @@ class EntityResolver extends DefaultResolver
                     continue;
                 }
                 $method = $reflectionClass->getMethod('__resolveType');
-                if (!$method->isStatic() || !$method->isPublic()) {
-                    throw new RuntimeException('Method __resolveType must be public static');
-                }
                 return self::$typeResolvers[$type] = new MethodBasedTypeResolver($type, $method);
             } while ($reflectionClass = $reflectionClass->getParentClass());
         }

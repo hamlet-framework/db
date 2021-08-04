@@ -132,6 +132,11 @@ class BatchProcessorTest extends TestCase
         };
     }
 
+    private function empty()
+    {
+        return yield from [];
+    }
+
     private function locations()
     {
         $rows = [
@@ -323,5 +328,12 @@ class BatchProcessorTest extends TestCase
         }
 
         $this->assertEquals(iterator_to_array($this->phones()), $phones);
+    }
+
+    public function testCollectingHeadFromEmptyCollection()
+    {
+        $collection = new Collection($this->empty(), $this->streamingMode());
+
+        $this->assertNull($collection->collectHead());
     }
 }

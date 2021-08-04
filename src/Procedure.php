@@ -7,9 +7,12 @@ use Hamlet\Database\Processing\SplitContext;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use function assert;
-use function is_float;
-use function is_int;
-use function is_string;
+use function Hamlet\Cast\_array;
+use function Hamlet\Cast\_float;
+use function Hamlet\Cast\_int;
+use function Hamlet\Cast\_null;
+use function Hamlet\Cast\_string;
+use function Hamlet\Cast\_union;
 use function iterator_to_array;
 
 abstract class Procedure implements LoggerAwareInterface
@@ -79,6 +82,7 @@ abstract class Procedure implements LoggerAwareInterface
      */
     public function bindNullableBlob($value)
     {
+        assert(_union(_string(), _null())->matches($value));
         $this->parameters[] = ['b', $value];
         return $this;
     }
@@ -89,6 +93,7 @@ abstract class Procedure implements LoggerAwareInterface
      */
     public function bindNullableFloat($value)
     {
+        assert(_union(_float(), _null())->matches($value));
         $this->parameters[] = ['d', $value];
         return $this;
     }
@@ -99,6 +104,7 @@ abstract class Procedure implements LoggerAwareInterface
      */
     public function bindNullableInteger($value)
     {
+        assert(_union(_int(), _null())->matches($value));
         $this->parameters[] = ['i', $value];
         return $this;
     }
@@ -109,6 +115,7 @@ abstract class Procedure implements LoggerAwareInterface
      */
     public function bindNullableString($value)
     {
+        assert(_union(_string(), _null())->matches($value));
         $this->parameters[] = ['s', $value];
         return $this;
     }
@@ -119,10 +126,7 @@ abstract class Procedure implements LoggerAwareInterface
      */
     public function bindFloatList(array $values)
     {
-        assert(!empty($values));
-        foreach ($values as $value) {
-            assert(is_float($value));
-        }
+        assert(_array(_float())->matches($values));
         $this->parameters[] = ['d', $values];
         return $this;
     }
@@ -133,10 +137,7 @@ abstract class Procedure implements LoggerAwareInterface
      */
     public function bindIntegerList(array $values)
     {
-        assert(!empty($values));
-        foreach ($values as $value) {
-            assert(is_int($value));
-        }
+        assert(_array(_int())->matches($values));
         $this->parameters[] = ['i', $values];
         return $this;
     }
@@ -147,10 +148,7 @@ abstract class Procedure implements LoggerAwareInterface
      */
     public function bindStringList(array $values)
     {
-        assert(!empty($values));
-        foreach ($values as $value) {
-            assert(is_string($value));
-        }
+        assert(_array(_string())->matches($values));
         $this->parameters[] = ['s', $values];
         return $this;
     }

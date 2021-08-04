@@ -39,9 +39,15 @@ class MethodBasedTypeResolver implements TypeResolver
      */
     public function resolveType($value): string
     {
+        if (!$this->reflectionMethod->isStatic()) {
+            throw new DatabaseException(sprintf('Type resolver must be static: %s', $this->reflectionMethod->getDeclaringClass()->getName()));
+        }
+        if (!$this->reflectionMethod->isPublic()) {
+            throw new DatabaseException(sprintf('Type resolver must be public: %s', $this->reflectionMethod->getDeclaringClass()->getName()));
+        }
         $subType = $this->reflectionMethod->invoke(null, $value);
         if (!is_string($subType)) {
-            throw new DatabaseException(sprintf('Type resolver must return a string: %s', $this->reflectionMethod->getName()));
+            throw new DatabaseException(sprintf('Type resolver must return a string: %s', $this->reflectionMethod->getDeclaringClass()->getName()));
         }
         if (!class_exists($subType)) {
             throw new DatabaseException(sprintf('Type resolver must return a valid class-string: %s returned', $subType));
