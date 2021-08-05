@@ -71,13 +71,28 @@ abstract class Database implements LoggerAwareInterface
      * @template Q
      * @param array<K,callable(Session):Q> $callables
      * @return array<K,Q>
+     * @psalm-suppress MixedAssignment
+     * @psalm-suppress UndefinedClass
      */
     public function withSessions(array $callables): array
     {
-        $result = [];
-        foreach ($callables as $key => $callable) {
-            $result[$key] = $this->withSession($callable);
+        $results = [];
+        if (class_exists('\parallel\Runtime')) {
+            $runtime = new \parallel\Runtime();
+            $futures = [];
+            foreach ($callables as $key => $callable) {
+                $futures[$key] = $runtime->run(function () use ($callable) {
+                    return $this->withSession($callable);
+                });
+            }
+            foreach ($futures as $key => $future) {
+                $results[$key] = $future;
+            }
+        } else {
+            foreach ($callables as $key => $callable) {
+                $results[$key] = $this->withSession($callable);
+            }
         }
-        return $result;
+        return $results;
     }
 }
