@@ -7,14 +7,8 @@ use Hamlet\Database\DatabaseException;
 
 class SelectValue
 {
-    /**
-     * @var string
-     */
-    private $field;
-
-    public function __construct(string $field)
+    public function __construct(private readonly string $field)
     {
-        $this->field = $field;
     }
 
     /**

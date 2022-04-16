@@ -8,8 +8,7 @@ namespace Hamlet\Database\Resolvers;
 interface TypeResolver
 {
     /**
-     * @param mixed $value
      * @return class-string<T>
      */
-    public function resolveType($value): string;
+    public function resolveType(mixed $value): string;
 }

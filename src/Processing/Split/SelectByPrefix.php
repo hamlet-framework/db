@@ -6,24 +6,15 @@ use Generator;
 
 class SelectByPrefix
 {
-    /**
-     * @var string
-     */
-    private $prefix;
-
-    /**
-     * @var int
-     */
-    private $length;
+    private int $length;
 
     /**
      * @var array<string,array<string,string|false>>
      */
-    private static $prefixCache = [];
+    private static array $prefixCache = [];
 
-    public function __construct(string $prefix)
+    public function __construct(private readonly string $prefix)
     {
-        $this->prefix = $prefix;
         $this->length = strlen($prefix);
     }
 
@@ -43,7 +34,7 @@ class SelectByPrefix
             if (isset(self::$prefixCache[$field][$this->prefix])) {
                 $suffix = self::$prefixCache[$field][$this->prefix];
             } else {
-                if (strpos($field, $this->prefix) === 0) {
+                if (str_starts_with($field, $this->prefix)) {
                     $suffix = substr($field, $this->length);
                 } else {
                     $suffix = false;

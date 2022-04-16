@@ -23,23 +23,11 @@ class MergeContext
     use EntityFactoryTrait;
 
     /**
-     * @var Generator<I,array{E,array<K,V>}>
-     */
-    protected $source;
-
-    /**
-     * @var bool
-     */
-    protected $streamingMode;
-
-    /**
      * @param Generator<I,array{E,array<K,V>}> $source
      * @param bool $streamingMode
      */
-    public function __construct(Generator $source, bool $streamingMode)
+    public function __construct(protected readonly Generator $source, protected readonly bool $streamingMode)
     {
-        $this->source = $source;
-        $this->streamingMode = $streamingMode;
     }
 
     /**

@@ -12,27 +12,15 @@ use Psr\Log\NullLogger;
  */
 abstract class Session implements LoggerAwareInterface
 {
-    /**
-     * @var T
-     */
-    protected $handle;
+    protected bool $transactionStarted;
 
-    /**
-     * @var bool
-     */
-    protected $transactionStarted;
-
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
+    protected LoggerInterface $logger;
 
     /**
      * @param T $handle
      */
-    protected function __construct($handle)
+    protected function __construct(protected readonly mixed $handle)
     {
-        $this->handle = $handle;
         $this->transactionStarted = false;
         $this->logger = new NullLogger;
     }
@@ -42,10 +30,6 @@ abstract class Session implements LoggerAwareInterface
         $this->logger = $logger;
     }
 
-    /**
-     * @param string $query
-     * @return Procedure
-     */
     abstract public function prepare(string $query): Procedure;
 
     /**
@@ -53,7 +37,7 @@ abstract class Session implements LoggerAwareInterface
      * @param callable():Q $callable
      * @return Q
      */
-    public function withTransaction(callable $callable)
+    public function withTransaction(callable $callable): mixed
     {
         $newTransaction = !$this->transactionStarted;
         try {
@@ -83,19 +67,16 @@ abstract class Session implements LoggerAwareInterface
 
     /**
      * @param T $connection
-     * @return void
      */
-    abstract protected function startTransaction($connection);
+    abstract protected function startTransaction(mixed $connection): void;
 
     /**
      * @param T $connection
-     * @return void
      */
-    abstract protected function commit($connection);
+    abstract protected function commit(mixed $connection): void;
 
     /**
      * @param T $connection
-     * @return void
      */
-    abstract protected function rollback($connection);
+    abstract protected function rollback(mixed $connection): void;
 }

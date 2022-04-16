@@ -12,43 +12,26 @@ use SplQueue;
  */
 class SimpleConnectionPool implements ConnectionPool
 {
-    /**
-     * @var callable():T
-     */
-    private $connector;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
     /**
      * @var SplQueue<T>
      */
-    private $pool;
+    private SplQueue $pool;
 
-    /**
-     * @var int
-     */
-    private $size;
+    private int $size;
 
     /**
      * @param callable():T $connector
      */
-    public function __construct(callable $connector)
+    public function __construct(private readonly mixed $connector)
     {
-        $this->connector = $connector;
         $this->logger = new NullLogger;
         $this->pool = new SplQueue;
         $this->size = 0;
     }
 
-
-    /**
-     * @param LoggerInterface $logger
-     * @return void
-     */
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
     }
@@ -56,7 +39,7 @@ class SimpleConnectionPool implements ConnectionPool
     /**
      * @return T
      */
-    public function pop()
+    public function pop(): mixed
     {
         if ($this->size > 0) {
             $this->size--;
@@ -71,9 +54,8 @@ class SimpleConnectionPool implements ConnectionPool
 
     /**
      * @param T $connection
-     * @return void
      */
-    public function push($connection)
+    public function push($connection): void
     {
         $this->size++;
         $this->logger->debug(sprintf('Releasing connection back to pool (%d connections)', $this->size));

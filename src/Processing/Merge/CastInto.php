@@ -4,7 +4,9 @@ namespace Hamlet\Database\Processing\Merge;
 
 use Generator;
 use Hamlet\Cast\ClassType;
+use Hamlet\Database\DatabaseException;
 use Hamlet\Database\Resolvers\EntityResolver;
+use ReflectionException;
 
 /**
  * @template Q as object
@@ -12,23 +14,11 @@ use Hamlet\Database\Resolvers\EntityResolver;
 class CastInto
 {
     /**
-     * @var class-string<Q>
-     */
-    protected $typeName;
-
-    /**
-     * @var string
-     */
-    private $name;
-
-    /**
      * @param class-string<Q> $typeName
      * @param string $name
      */
-    public function __construct(string $typeName, string $name)
+    public function __construct(protected readonly string $typeName, private readonly string $name)
     {
-        $this->typeName = $typeName;
-        $this->name = $name;
     }
 
     /**
@@ -44,7 +34,11 @@ class CastInto
         $type = new ClassType($this->typeName);
         $entityResolver = new EntityResolver;
         foreach ($records as $key => list($item, $record)) {
-            $instance = $type->resolveAndCast($item, $entityResolver);
+            try {
+                $instance = $type->resolveAndCast($item, $entityResolver);
+            } catch (ReflectionException $exception) {
+                throw new DatabaseException('Cannot transform record', 0, $exception);
+            }
             $record[$this->name] = $instance;
             yield $key => $record;
         }

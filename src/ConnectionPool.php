@@ -10,20 +10,15 @@ use Psr\Log\LoggerInterface;
  */
 interface ConnectionPool extends LoggerAwareInterface
 {
-    /**
-     * @param LoggerInterface $logger
-     * @return void
-     */
-    public function setLogger(LoggerInterface $logger);
+    public function setLogger(LoggerInterface $logger): void;
 
     /**
      * @return T
      */
-    public function pop();
+    public function pop(): mixed;
 
     /**
      * @param T $connection
-     * @return void
      */
-    public function push($connection);
+    public function push(mixed $connection): void;
 }

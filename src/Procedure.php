@@ -10,121 +10,75 @@ use function assert;
 use function Hamlet\Cast\_array;
 use function Hamlet\Cast\_float;
 use function Hamlet\Cast\_int;
-use function Hamlet\Cast\_null;
 use function Hamlet\Cast\_string;
-use function Hamlet\Cast\_union;
 use function iterator_to_array;
 
 abstract class Procedure implements LoggerAwareInterface
 {
-    /**
-     * @var LoggerInterface|null
-     */
-    protected $logger;
+    protected ?LoggerInterface $logger;
 
     /**
      * @var array<array{0:string,1:string|float|int|array<string>|array<float>|array<int>|null}>
      */
-    protected $parameters = [];
+    protected array $parameters = [];
 
-    /**
-     * @param LoggerInterface $logger
-     * @return void
-     */
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
     }
 
-    /**
-     * @param string $value
-     * @return static
-     */
-    public function bindBlob(string $value)
+    public function bindBlob(string $value): static
     {
         $this->parameters[] = ['b', $value];
         return $this;
     }
 
-    /**
-     * @param float $value
-     * @return static
-     */
-    public function bindFloat(float $value)
+    public function bindFloat(float $value): static
     {
         $this->parameters[] = ['d', $value];
         return $this;
     }
 
-    /**
-     * @param int $value
-     * @return static
-     */
-    public function bindInteger(int $value)
+    public function bindInteger(int $value): static
     {
         $this->parameters[] = ['i', $value];
         return $this;
     }
 
-    /**
-     * @param string $value
-     * @return static
-     */
-    public function bindString(string $value)
+    public function bindString(string $value): static
     {
         $this->parameters[] = ['s', $value];
         return $this;
     }
 
-    /**
-     * @param string|null $value
-     * @return static
-     */
-    public function bindNullableBlob($value)
+    public function bindNullableBlob(?string $value): static
     {
-        assert(_union(_string(), _null())->matches($value));
         $this->parameters[] = ['b', $value];
         return $this;
     }
 
-    /**
-     * @param float|null $value
-     * @return static
-     */
-    public function bindNullableFloat($value)
+    public function bindNullableFloat(?float $value): static
     {
-        assert(_union(_float(), _null())->matches($value));
         $this->parameters[] = ['d', $value];
         return $this;
     }
 
-    /**
-     * @param int|null $value
-     * @return static
-     */
-    public function bindNullableInteger($value)
+    public function bindNullableInteger(?int $value): static
     {
-        assert(_union(_int(), _null())->matches($value));
         $this->parameters[] = ['i', $value];
         return $this;
     }
 
-    /**
-     * @param string|null $value
-     * @return static
-     */
-    public function bindNullableString($value)
+    public function bindNullableString(?string $value): static
     {
-        assert(_union(_string(), _null())->matches($value));
         $this->parameters[] = ['s', $value];
         return $this;
     }
 
     /**
      * @param array<float> $values
-     * @return static
      */
-    public function bindFloatList(array $values)
+    public function bindFloatList(array $values): static
     {
         assert(_array(_float())->matches($values));
         $this->parameters[] = ['d', $values];
@@ -133,9 +87,8 @@ abstract class Procedure implements LoggerAwareInterface
 
     /**
      * @param array<int> $values
-     * @return static
      */
-    public function bindIntegerList(array $values)
+    public function bindIntegerList(array $values): static
     {
         assert(_array(_int())->matches($values));
         $this->parameters[] = ['i', $values];
@@ -144,9 +97,8 @@ abstract class Procedure implements LoggerAwareInterface
 
     /**
      * @param array<string> $values
-     * @return static
      */
-    public function bindStringList(array $values)
+    public function bindStringList(array $values): static
     {
         assert(_array(_string())->matches($values));
         $this->parameters[] = ['s', $values];
@@ -161,7 +113,7 @@ abstract class Procedure implements LoggerAwareInterface
     /**
      * @return array<string,int|string|float|null>|null
      */
-    public function fetchOne()
+    public function fetchOne(): ?array
     {
         foreach ($this->fetch() as $record) {
             return $record;
@@ -213,10 +165,7 @@ abstract class Procedure implements LoggerAwareInterface
 
     abstract public function insert(): int;
 
-    /**
-     * @return void
-     */
-    abstract public function execute();
+    abstract public function execute(): void;
 
     abstract public function affectedRows(): int;
 }

@@ -7,20 +7,8 @@ use Hamlet\Database\DatabaseException;
 
 class Map
 {
-    /**
-     * @var string
-     */
-    private $keyField;
-
-    /**
-     * @var string
-     */
-    private $valueField;
-
-    public function __construct(string $keyField, string $valueField)
+    public function __construct(private readonly string $keyField, private readonly string $valueField)
     {
-        $this->keyField = $keyField;
-        $this->valueField = $valueField;
     }
 
     /**

@@ -3,7 +3,6 @@
 namespace Hamlet\Database\Processing\Merge;
 
 use Generator;
-use Hamlet\Database\DatabaseException;
 use Hamlet\Database\Traits\EntityFactoryTrait;
 use function md5;
 use function serialize;
@@ -12,14 +11,8 @@ class FlattenIntoBatched
 {
     use EntityFactoryTrait;
 
-    /**
-     * @var string
-     */
-    private $name;
-
-    public function __construct(string $name)
+    public function __construct(private readonly string $name)
     {
-        $this->name = $name;
     }
 
     /**

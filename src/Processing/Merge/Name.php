@@ -6,14 +6,8 @@ use Generator;
 
 class Name
 {
-    /**
-     * @var string
-     */
-    private $name;
-
-    public function __construct(string $name)
+    public function __construct(private readonly string $name)
     {
-        $this->name = $name;
     }
 
     /**

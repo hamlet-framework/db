@@ -13,31 +13,17 @@ use ReflectionMethod;
 class MethodBasedTypeResolver implements TypeResolver
 {
     /**
-     * @var class-string<T>
-     */
-    private $parentType;
-
-    /**
-     * @var ReflectionMethod
-     */
-    private $reflectionMethod;
-
-    /**
      * @param class-string<T> $parentType
-     * @param ReflectionMethod $reflectionMethod
      */
-    public function __construct(string $parentType, ReflectionMethod $reflectionMethod)
+    public function __construct(private readonly string $parentType, private readonly ReflectionMethod $reflectionMethod)
     {
-        $this->parentType = $parentType;
-        $this->reflectionMethod = $reflectionMethod;
     }
 
     /**
-     * @param mixed $value
      * @return class-string<T>
      * @throws ReflectionException
      */
-    public function resolveType($value): string
+    public function resolveType(mixed $value): string
     {
         if (!$this->reflectionMethod->isStatic()) {
             throw new DatabaseException(sprintf('Type resolver must be static: %s', $this->reflectionMethod->getDeclaringClass()->getName()));

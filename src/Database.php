@@ -12,29 +12,17 @@ use Psr\Log\NullLogger;
  */
 abstract class Database implements LoggerAwareInterface
 {
-    /**
-     * @var ConnectionPool<T>
-     */
-    protected $pool;
-
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
+    protected LoggerInterface $logger;
 
     /**
      * @param ConnectionPool<T> $pool
      */
-    protected function __construct(ConnectionPool $pool)
+    protected function __construct(protected readonly ConnectionPool $pool)
     {
-        $this->pool = $pool;
         $this->logger = new NullLogger;
     }
 
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
         $this->pool->setLogger($logger);
@@ -44,14 +32,14 @@ abstract class Database implements LoggerAwareInterface
      * @param T $handle
      * @return Session<T>
      */
-    abstract protected function createSession($handle): Session;
+    abstract protected function createSession(mixed $handle): Session;
 
     /**
      * @template Q
      * @param callable(Session):Q $callable
      * @return Q
      */
-    public function withSession(callable $callable)
+    public function withSession(callable $callable): mixed
     {
         $handle = $this->pool->pop();
         $session = $this->createSession($handle);

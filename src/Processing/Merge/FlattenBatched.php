@@ -23,7 +23,6 @@ class FlattenBatched extends FlattenIntoBatched
      * @param Generator<I,array{array<K1,V1>,array<K,V>}> $records
      * @return Generator<K1,V1>
      * @psalm-suppress LessSpecificImplementedReturnType
-     * @psalm-suppress MixedReturnTypeCoercion
      */
     public function transform(Generator $records): Generator
     {
@@ -32,10 +31,6 @@ class FlattenBatched extends FlattenIntoBatched
             assert(array_key_exists(':property:', $record));
             $item = $record[':property:'];
             assert(is_array($item));
-            /**
-             * @psalm-suppress MixedAssignment
-             * @psalm-suppress MixedOperand
-             */
             $map += $item;
         }
         yield from $map;

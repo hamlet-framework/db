@@ -4,22 +4,18 @@ namespace Hamlet\Database\Resolvers;
 
 use Hamlet\Cast\Resolvers\DefaultResolver;
 use Hamlet\Cast\Resolvers\SubTypeResolution;
-use Hamlet\Database\DatabaseException;
-use ReflectionException;
-use RuntimeException;
 
 class EntityResolver extends DefaultResolver
 {
     /**
      * @var array<class-string,TypeResolver>
      */
-    private static $typeResolvers = [];
+    private static array $typeResolvers = [];
 
     /**
      * @template T
      * @param class-string<T> $type
      * @return TypeResolver<T>
-     * @throws ReflectionException
      * @psalm-suppress MixedReturnTypeCoercion
      */
     private function locateTypeResolver(string $type): TypeResolver
@@ -47,9 +43,8 @@ class EntityResolver extends DefaultResolver
      * @param class-string<T> $type
      * @param mixed $value
      * @return SubTypeResolution<T>
-     * @throws ReflectionException
      */
-    public function resolveSubType(string $type, $value): SubTypeResolution
+    public function resolveSubType(string $type, mixed $value): SubTypeResolution
     {
         $resolvedSubTypeName = $this->locateTypeResolver($type)->resolveType($value);
         return new SubTypeResolution($this->getReflectionClass($resolvedSubTypeName), $this);

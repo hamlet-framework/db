@@ -113,7 +113,7 @@ class DatabaseTest extends TestCase
         );
     }
 
-    public function testWithSessionPropagatesValue()
+    public function testWithSessionPropagatesValue(): void
     {
         $connection = new stdClass;
         $pool = Phake::mock(SimpleConnectionPool::class);
@@ -123,10 +123,10 @@ class DatabaseTest extends TestCase
         $database = Phake::partialMock(Database::class, $pool);
         Phake::when($database)->createSession($connection)->thenReturn($session);
 
-        $result = $database->withSession(function ($session) {
-            return $session->withTransaction(function () use ($session) {
-                return $session->withTransaction(function () use ($session) {
-                    return $session->withTransaction(function () {
+        $result = $database->withSession(function ($session): int {
+            return $session->withTransaction(function () use ($session): int {
+                return $session->withTransaction(function () use ($session): int {
+                    return $session->withTransaction(function (): int {
                         return 42;
                     });
                 });

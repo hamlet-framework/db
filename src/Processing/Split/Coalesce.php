@@ -8,16 +8,10 @@ use Hamlet\Database\DatabaseException;
 class Coalesce
 {
     /**
-     * @var array<string>
-     */
-    private $fields;
-
-    /**
      * @param array<string> $fields
      */
-    public function __construct(array $fields)
+    public function __construct(private readonly array $fields)
     {
-        $this->fields = $fields;
     }
 
     /**

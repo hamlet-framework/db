@@ -12,39 +12,21 @@ use Iterator;
  */
 class Collection
 {
-    /**
-     * @var Generator<I,T>
-     */
-    protected $source;
+    protected ?Type $keyType = null;
 
-    /**
-     * @var bool
-     */
-    protected $streamingMode;
-
-    /**
-     * @var Type|null
-     */
-    protected $keyType = null;
-
-    /**
-     * @var Type|null
-     */
-    protected $valueType = null;
+    protected ?Type $valueType = null;
 
     /**
      * @var (callable(I,T):bool)|null
      */
-    protected $assertion = null;
+    protected mixed $assertion = null;
 
     /**
      * @param Generator<I,T> $source
      * @param bool $streamingMode
      */
-    public function __construct(Generator $source, bool $streamingMode)
+    public function __construct(protected readonly Generator $source, protected readonly bool $streamingMode)
     {
-        $this->source = $source;
-        $this->streamingMode = $streamingMode;
     }
 
     /**
@@ -113,7 +95,7 @@ class Collection
      * @param T $value
      * @return void
      */
-    private function validate($key, $value)
+    private function validate(mixed $key, mixed $value): void
     {
         assert(
             ($this->keyType === null || $this->keyType->matches($key)) &&

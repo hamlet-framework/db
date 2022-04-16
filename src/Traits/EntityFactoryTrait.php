@@ -11,13 +11,13 @@ trait EntityFactoryTrait
      * @return bool
      * @psalm-assert !null $item
      */
-    private function isNull($item): bool
+    private function isNull(mixed $item): bool
     {
         if (is_array($item)) {
             /**
              * @psalm-suppress MixedAssignment
              */
-            foreach ($item as &$value) {
+            foreach ($item as $value) {
                 if (!$this->isNull($value)) {
                     return false;
                 }

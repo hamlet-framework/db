@@ -21,7 +21,7 @@ class ProcedureTest extends TestCase
                 return 0;
             }
 
-            public function execute() {}
+            public function execute(): void {}
 
             public function affectedRows(): int
             {
